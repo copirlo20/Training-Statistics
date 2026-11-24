@@ -16,7 +16,7 @@
 ![HTML5](https://img.shields.io/badge/HTML5_%2B_CSS3-thu%E1%BA%A7n-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Windows](https://img.shields.io/badge/Windows-Service-0078D4?style=for-the-badge&logo=windows&logoColor=white)
 
-![Tests](https://img.shields.io/badge/backend-187%20test%20%C4%91%E1%BA%A1t-22c55e?style=flat-square&logo=checkmarx&logoColor=white)
+![Tests](https://img.shields.io/badge/backend-192%20test%20%C4%91%E1%BA%A1t-22c55e?style=flat-square&logo=checkmarx&logoColor=white)
 ![UI](https://img.shields.io/badge/ki%E1%BB%83m%20tra%20giao%20di%E1%BB%87n-382%2F382-22c55e?style=flat-square)
 ![Responsive](https://img.shields.io/badge/responsive-360%20%E2%86%92%201920%20px-ec4899?style=flat-square)
 ![Offline](https://img.shields.io/badge/ch%E1%BA%A1y-kh%C3%B4ng%20c%E1%BA%A7n%20Internet-1F4E8C?style=flat-square)
@@ -196,7 +196,7 @@ Hệ thống được thiết kế để **triển khai dễ trên một máy ch
       <img src="https://img.shields.io/badge/JUnit_5-25A162?logo=junit5&logoColor=white" alt="JUnit" />
       <img src="https://img.shields.io/badge/Edge%20%2F%20Chrome-DevTools-0078D7?logo=microsoftedge&logoColor=white" alt="DevTools" />
     </td>
-    <td>187 test backend (gồm kiểm tra tải 2.000 người, 50 truy cập đồng thời); kịch bản <code>ui-check</code> điều khiển trình duyệt thật ở 6 độ rộng.</td>
+    <td>192 test backend (gồm kiểm tra tải 2.000 người, 50 truy cập đồng thời); kịch bản <code>ui-check</code> điều khiển trình duyệt thật ở 6 độ rộng.</td>
   </tr>
 </table>
 
@@ -342,7 +342,7 @@ Dữ liệu, cấu hình, log và sao lưu nằm ở `C:\ProgramData\TrainingSta
 
 | Bộ kiểm thử                   | Quy mô                                 | Kiểm                                                                                                                                                                              |
 | ----------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🧱 **Backend (JUnit)**        | 187 test đạt                           | Schema và ràng buộc, phân quyền theo nhánh (kể cả quét mọi endpoint), xếp loại ở điểm biên (4.9, 5.0, 6.5, 6.6, 7.9, 8.0), điểm một lần, nhập Excel 1.000 dòng, sao lưu, nâng cấp |
+| 🧱 **Backend (JUnit)**        | 192 test đạt                           | Schema và ràng buộc, phân quyền theo nhánh (kể cả quét mọi endpoint), xếp loại ở điểm biên (4.9, 5.0, 6.5, 6.6, 7.9, 8.0), điểm một lần, nhập Excel 1.000 dòng, sao lưu, nâng cấp |
 | ⚡ **Tải**                    | 2.000 người, 50 truy cập đồng thời     | Trang chủ dưới 2 giây (p95 khoảng 0,9 giây); 6 giám khảo chấm đồng thời, mỗi người đúng một điểm                                                                                  |
 | 🖥️ **Giao diện (`ui-check`)** | 382 phép kiểm, 6 độ rộng 360 → 1920 px | Không cuộn ngang, vùng chạm 44 px, không lỗi JS hay CSP, không tài nguyên ngoài, số trên giao diện khớp API, bản in đen trắng                                                     |
 | 📦 **Nâng cấp bộ cài**        | `test-upgrade.ps1`                     | Dữ liệu và cấu hình giữ nguyên từng byte khi cài bản mới                                                                                                                          |
@@ -352,6 +352,7 @@ Hướng dẫn chạy, đọc kết quả và các lỗi thường gặp: [docs/
 ## 🔐 Bảo mật
 
 - 🔑 Mật khẩu chỉ lưu **BCrypt**; session phía server, cookie `HttpOnly`, **CSRF** cho mọi request ghi; header bảo mật (CSP `default-src 'self'`).
+- 🔁 **Bắt đổi mật khẩu lần đầu**: tài khoản mới cấp hoặc vừa được đặt lại mật khẩu phải đặt mật khẩu mới trước khi dùng; máy chủ chặn mọi API khác (`403 PASSWORD_CHANGE_REQUIRED`).
 - 🧱 **Phân quyền trong truy vấn SQL**; bản ghi ngoài phạm vi trả `404`; không tự khóa, xóa, hạ quyền chính mình; luôn còn ít nhất một Super Admin.
 - 🧾 **Nhật ký chỉ thêm**: đăng nhập thành công và thất bại kèm IP, đổi quyền, sửa điểm; trigger chặn sửa, xóa.
 - 🕵️ Giám khảo tìm ứng viên toàn Lữ đoàn chỉ nhận tên, cấp bậc, đơn vị, mã định danh; không lộ ngày sinh, điện thoại, tài khoản.

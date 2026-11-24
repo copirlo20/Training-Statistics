@@ -37,6 +37,7 @@ Mỗi người chỉ thấy những gì thuộc phạm vi của mình. Admin c�
 
 1. Mở địa chỉ máy chủ trong trình duyệt (ví dụ `http://192.168.0.10:8080/`). Dùng được trên máy tính, máy tính bảng và điện thoại cùng mạng nội bộ; không cần Internet.
 2. Nhập **tài khoản** và **mật khẩu** do quản trị cấp, bấm đăng nhập. Sai tài khoản hoặc mật khẩu thì báo "Tài khoản hoặc mật khẩu không đúng." ngay trên form (không cho biết sai ở đâu, để tránh dò tài khoản).
+   **Lần đăng nhập đầu** (tài khoản mới cấp hoặc vừa được Admin đặt lại mật khẩu), hệ thống không vào ngay mà hiện form **đặt mật khẩu mới**: nhập mật khẩu mới hai lần (tối thiểu 8 ký tự, khác mật khẩu đang dùng) → **Đổi mật khẩu và tiếp tục**. Chưa đổi thì không dùng được chức năng nào khác; muốn để lúc khác thì bấm **Đăng xuất**.
 3. Đăng xuất: bấm tên hoặc ảnh đại diện ở góc trên bên phải → **Đăng xuất**. Trên điện thoại: thanh tab đáy → **Thêm** → Đăng xuất.
 4. Không thao tác trong khoảng 30 phút thì phiên tự hết hạn, hệ thống đưa về trang đăng nhập.
 
@@ -44,7 +45,7 @@ Người chưa được cấp tài khoản không đăng nhập được: nhờ 
 
 ### 1.3 Mật khẩu
 
-- **Tài khoản mới cấp có mật khẩu mặc định `123456789`.** Hệ thống không bắt đổi, nhưng ai biết tên tài khoản của bạn đều đăng nhập được cho tới khi bạn tự đổi. **Hãy đổi ngay lần đăng nhập đầu tiên.**
+- **Tài khoản mới cấp có mật khẩu mặc định `123456789`.** Ở lần đăng nhập đầu, hệ thống bắt bạn đặt mật khẩu mới (mục 1.2). Ai biết tên tài khoản của bạn đều đăng nhập được bằng mật khẩu mặc định cho tới lúc đó, nên **đăng nhập và đổi mật khẩu ngay khi được cấp**.
 - Đổi mật khẩu: **Đổi mật khẩu** (menu Cá nhân, hoặc menu ảnh đại diện) → nhập mật khẩu hiện tại, mật khẩu mới (tối thiểu 8 ký tự, tối đa 72 byte) → lưu. Thấy "Đã đổi mật khẩu." là xong.
 - Quên mật khẩu: nhờ Admin trong nhánh của bạn đặt lại ở trang chi tiết người dùng. Nếu là Super Admin quên mật khẩu, người quản trị máy chủ đặt lại bằng công cụ trên máy chủ (OPERATIONS-GUIDE mục 10).
 - Hệ thống **không khóa tài khoản khi nhập sai**, nhưng ghi lại mọi lần đăng nhập thất bại. Chọn mật khẩu khó đoán, đừng chia sẻ.
@@ -244,7 +245,7 @@ Menu **Người dùng**: danh sách người trong phạm vi.
 1. Nhập họ đệm, tên (bắt buộc).
 2. Chọn **đơn vị** (bắt buộc, chỉ trong phạm vi của bạn), **đối tượng** (SQ, QNCN, HSQ-CS; bắt buộc), cấp bậc, chức vụ, chuyên ngành (chọn nhiều bằng ô đánh dấu), ngày sinh, điện thoại, ghi chú.
 3. **Mã định danh:** để trống thì hệ thống tự cấp; nhập số hiệu chính thức nếu có (không được trùng).
-4. Cấp tài khoản ngay nếu cần (tên tài khoản, quyền Người dùng hoặc Admin); không nhập mật khẩu thì dùng mật khẩu mặc định `123456789`. Admin bắt buộc có tài khoản.
+4. Cấp tài khoản ngay nếu cần (tên tài khoản, quyền Người dùng hoặc Admin); không nhập mật khẩu thì dùng mật khẩu mặc định `123456789`. Dù nhập hay để mặc định, người dùng đều phải đặt mật khẩu mới ở lần đăng nhập đầu. Admin bắt buộc có tài khoản.
 5. Lưu, hệ thống mở trang chi tiết của người vừa tạo.
 
 **Sửa thông tin:** nút **Sửa** ở dòng hoặc ở trang chi tiết. Form sửa chỉ gồm hồ sơ; tài khoản, đơn vị, quyền, trạng thái và mật khẩu có nút riêng (bên dưới). Nếu báo lỗi sai phiên bản, nghĩa là người khác vừa sửa bản ghi này: tải lại trang rồi sửa lại.
@@ -253,8 +254,8 @@ Menu **Người dùng**: danh sách người trong phạm vi.
 
 | Thao tác | Cách làm và lưu ý |
 |---|---|
-| **Cấp tài khoản** | Trang chi tiết → thẻ Tài khoản → **Cấp tài khoản** → nhập tên tài khoản; hộp thoại ghi rõ mật khẩu ban đầu là `123456789`. **Đổi tài khoản** đổi tên (giữ mật khẩu); **Thu hồi** xóa tài khoản (chỉ với Người dùng, không với Admin) |
-| **Đặt lại mật khẩu** | Thao tác khác → **Đặt lại mật khẩu** → nhập mật khẩu mới hai lần (tối thiểu 8 ký tự). Không dùng cho chính mình (dùng Đổi mật khẩu) và không áp dụng cho tài khoản Super Admin |
+| **Cấp tài khoản** | Trang chi tiết → thẻ Tài khoản → **Cấp tài khoản** → nhập tên tài khoản; hộp thoại ghi rõ mật khẩu ban đầu là `123456789`; người dùng phải đặt mật khẩu mới ở lần đăng nhập đầu. **Đổi tài khoản** đổi tên (giữ mật khẩu); **Thu hồi** xóa tài khoản (chỉ với Người dùng, không với Admin) |
+| **Đặt lại mật khẩu** | Thao tác khác → **Đặt lại mật khẩu** → nhập mật khẩu mới hai lần (tối thiểu 8 ký tự). Người dùng đăng nhập bằng mật khẩu đó rồi phải đặt mật khẩu mới; phiên đang mở của họ cũng bị chuyển về form đặt mật khẩu. Không dùng cho chính mình (dùng Đổi mật khẩu) và không áp dụng cho tài khoản Super Admin |
 | **Đổi quyền** | **Đổi quyền** → chọn Người dùng hoặc Admin (cấp Admin theo cấp đơn vị của người đó). Lên Admin cần người đó đã có tài khoản và mật khẩu. Admin **không** cấp được Super Admin |
 | **Khóa, mở khóa** | Người bị khóa không đăng nhập được; có hiệu lực ngay cả với phiên đang mở. Không tự khóa mình |
 | **Xóa, khôi phục** | Xóa mềm: người đó biến khỏi danh sách mặc định, dữ liệu và kết quả cũ vẫn nằm trong thống kê lịch sử. **Khôi phục** (ở bộ lọc "Đã xóa") đưa trở lại. Không tự xóa mình |

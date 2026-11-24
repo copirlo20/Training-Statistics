@@ -86,6 +86,7 @@ erDiagram
         INTEGER unit_id FK "NULL chỉ với SUPER_ADMIN"
         TEXT username UK "NOCASE"
         TEXT password_hash "BCrypt"
+        INTEGER must_change_password "0 | 1"
         TEXT role "USER | ADMIN | SUPER_ADMIN"
         TEXT status "ACTIVE | INACTIVE | DELETED"
         TEXT personal_code UK
@@ -249,6 +250,7 @@ Một bảng chứa hai loại bản ghi, phân biệt bằng `kind`: `PERSON` l
 | `unit_id` | INTEGER | FK `unit` | `PERSON`: đơn vị hiện tại (NULL chỉ với `SUPER_ADMIN`). `UNIT`: chính đơn vị được đại diện |
 | `username` | TEXT | UK, NOCASE | Nhiều dòng NULL hợp lệ. `QuanTri` và `quantri` là trùng |
 | `password_hash` | TEXT | | BCrypt. Không bao giờ ghi vào log hay trả qua API |
+| `must_change_password` | INTEGER | NN, 0/1, mặc định 0 | 1 khi mật khẩu do người khác đặt; phải đổi trước khi dùng chức năng khác (ARCHITECTURE A14) |
 | `role` | TEXT | NN, `USER`/`ADMIN`/`SUPER_ADMIN`, mặc định `USER` | |
 | `status` | TEXT | NN, `ACTIVE`/`INACTIVE`/`DELETED`, mặc định `ACTIVE` | `DELETED` là xóa mềm |
 | `personal_code` | TEXT | UK | Mã định danh. NN khi `PERSON`; tự cấp `ND000001`... nếu để trống; khóa khớp khi nhập Excel |

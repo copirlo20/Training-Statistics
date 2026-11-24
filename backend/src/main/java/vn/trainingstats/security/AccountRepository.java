@@ -34,7 +34,7 @@ public class AccountRepository {
     public Optional<UserPrincipal> loadActivePrincipal(long userId) {
         List<UserPrincipal> rows = jdbc.query("""
                 SELECT u.id, u.username, u.role, u.unit_id, un.code AS unit_code, un.level AS unit_level,
-                       u.last_name, u.first_name
+                       u.last_name, u.first_name, u.must_change_password
                 FROM app_user u
                 LEFT JOIN unit un ON un.id = u.unit_id
                 WHERE u.id = ? AND u.kind = 'PERSON' AND u.status = 'ACTIVE'
@@ -47,7 +47,8 @@ public class AccountRepository {
                         JdbcValues.nullableLong(rs, "unit_id"),
                         rs.getString("unit_code"),
                         JdbcValues.nullableInt(rs, "unit_level"),
-                        (rs.getString("last_name") + " " + rs.getString("first_name")).trim()),
+                        (rs.getString("last_name") + " " + rs.getString("first_name")).trim(),
+                        rs.getInt("must_change_password") == 1),
                 userId);
         return rows.stream().findFirst();
     }
@@ -61,10 +62,14 @@ public class AccountRepository {
         jdbc.update("UPDATE app_user SET last_login_at = ? WHERE id = ?", at, userId);
     }
 
-    /** Chỉ cập nhật nếu hash hiện tại vẫn là hash đã kiểm tra, tránh hai lần đổi mật khẩu chen nhau. */
+    /**
+     * Chính chủ đổi mật khẩu (nên bỏ cờ bắt đổi). Chỉ cập nhật nếu hash hiện tại vẫn là hash đã kiểm tra, tránh hai
+     * lần đổi mật khẩu chen nhau.
+     */
     public int updatePasswordHash(long userId, String expectedOldHash, String newHash, String at) {
         return jdbc.update("""
-                UPDATE app_user SET password_hash = ?, updated_at = ?, updated_by = ?, version = version + 1
+                UPDATE app_user SET password_hash = ?, must_change_password = 0, updated_at = ?, updated_by = ?,
+                       version = version + 1
                 WHERE id = ? AND password_hash = ?
                 """, newHash, at, userId, userId, expectedOldHash);
     }

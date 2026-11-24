@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  * @param unitId    null với Super Admin
  * @param unitCode  null với Super Admin
  * @param unitLevel null với Super Admin. Cấp admin chính là cấp của đơn vị (không lưu riêng).
+ * @param mustChangePassword mật khẩu do người khác đặt; chỉ được đổi mật khẩu hoặc đăng xuất ({@link PasswordChangeGate})
  */
 public record UserPrincipal(
         long userId,
@@ -23,7 +24,8 @@ public record UserPrincipal(
         Long unitId,
         String unitCode,
         Integer unitLevel,
-        String displayName) implements Serializable {
+        String displayName,
+        boolean mustChangePassword) implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

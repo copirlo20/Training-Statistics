@@ -188,7 +188,7 @@ public class UserImportService {
                             "Đơn vị, cấp bậc, chức vụ, chuyên ngành lấy từ danh mục của hệ thống: bấm mũi tên ở cạnh ô để chọn, không gõ tay.",
                             "Khớp người theo mã định danh: có mã đã tồn tại thì cập nhật người đó, ô để trống ở cột không bắt buộc thì giữ nguyên giá trị cũ. Đã chọn chuyên ngành thì danh sách chuyên ngành của người đó được thay bằng các chuyên ngành đã chọn.",
                             "Cấp tài khoản: điền cột Tài khoản. Tài khoản mới có mật khẩu " + UserService.DEFAULT_PASSWORD
-                                    + ", báo người dùng đổi mật khẩu sau khi đăng nhập. Người đã có tài khoản giữ nguyên tài khoản và mật khẩu; đổi tên hay thu hồi tài khoản làm trên trang chi tiết người dùng.",
+                                    + ", người dùng phải đặt mật khẩu mới ở lần đăng nhập đầu. Người đã có tài khoản giữ nguyên tài khoản và mật khẩu; đổi tên hay thu hồi tài khoản làm trên trang chi tiết người dùng.",
                             "Cấp quyền: chọn ở cột Quyền (" + ROLE_USER + " hoặc " + ROLE_ADMIN + "). Admin bắt buộc có tài khoản. Quyền Super Admin không cấp bằng Excel.",
                             "Trên giao diện, bấm \"Kiểm tra file\" trước. Hệ thống báo lỗi theo dòng và cột; có một dòng lỗi thì không ghi dòng nào.",
                             "Tối đa " + ExcelBook.MAX_ROWS + " dòng, file tối đa 5 MB. Lưu file dạng Excel Workbook (.xlsx)."));
@@ -528,11 +528,12 @@ public class UserImportService {
         UnitView unit = planned.unit();
         jdbc.update("""
                 INSERT INTO app_user (kind, last_name, first_name, search_text, rank_id, position_id, unit_id,
-                                      username, password_hash, role, status, personal_code, category, birth_date, phone,
-                                      note, created_at, created_by, updated_at, updated_by)
-                VALUES ('PERSON', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                      username, password_hash, must_change_password, role, status, personal_code,
+                                      category, birth_date, phone, note, created_at, created_by, updated_at, updated_by)
+                VALUES ('PERSON', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, p.lastName(), p.firstName(), UserService.searchText(p, planned.username()), p.rankId(),
-                p.positionId(), unit.id(), planned.username(), planned.setPassword() ? defaultHash : null, planned.role(),
+                p.positionId(), unit.id(), planned.username(), planned.setPassword() ? defaultHash : null,
+                planned.setPassword() ? 1 : 0, planned.role(),
                 p.personalCode(), p.category(), p.birthDate(), p.phone(), p.note(), now, actor.userId(), now, actor.userId());
         long id = jdbc.queryForObject("SELECT last_insert_rowid()", Long.class);
         users.replaceSpecialties(id, p.specialtyIds());
@@ -558,11 +559,14 @@ public class UserImportService {
                        position_id = COALESCE(?, position_id), category = COALESCE(?, category),
                        birth_date = COALESCE(?, birth_date),
                        phone = COALESCE(?, phone), note = COALESCE(?, note), unit_id = ?, username = ?,
+                       must_change_password = CASE WHEN ? = 1 AND password_hash IS NULL THEN 1
+                                                   ELSE must_change_password END,
                        password_hash = CASE WHEN ? = 1 THEN COALESCE(password_hash, ?) ELSE password_hash END,
                        role = ?, search_text = ?, updated_at = ?, updated_by = ?, version = version + 1
                 WHERE id = ?
                 """, p.lastName(), p.firstName(), p.rankId(), p.positionId(), p.category(), p.birthDate(), p.phone(), p.note(),
-                planned.unit().id(), username, planned.setPassword() ? 1 : 0, defaultHash, planned.role(),
+                planned.unit().id(), username, planned.setPassword() ? 1 : 0, planned.setPassword() ? 1 : 0, defaultHash,
+                planned.role(),
                 UserService.searchText(forSearch, username), now, actor.userId(), t.id());
         if (planned.hasSpecialties()) {
             users.replaceSpecialties(t.id(), p.specialtyIds());

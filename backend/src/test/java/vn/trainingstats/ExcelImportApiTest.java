@@ -458,6 +458,8 @@ class ExcelImportApiTest extends M3TestBase {
                 "Không TK " + stamp)).isEqualTo(1);
         for (String u : List.of("m5a-", "m5u-", "m5e-")) {
             assertThat(loginResult(u + stamp, "123456789").getResponse().getStatus()).as("mật khẩu mặc định " + u).isEqualTo(200);
+            assertThat(count("SELECT must_change_password FROM app_user WHERE username = ?", u + stamp))
+                    .as("tài khoản cấp bằng Excel bị bắt đổi mật khẩu " + u).isEqualTo(1);
         }
         assertThat(count("SELECT COUNT(*) FROM audit_log WHERE action = ? AND entity_id = ?", AuditAction.USER_ROLE_CHANGED, existing))
                 .isEqualTo(1);

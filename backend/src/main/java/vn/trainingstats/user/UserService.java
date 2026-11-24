@@ -165,11 +165,12 @@ public class UserService {
             try {
                 jdbc.update("""
                         INSERT INTO app_user (kind, last_name, first_name, search_text, rank_id, position_id, unit_id,
-                                              username, password_hash, role, status, personal_code, category, birth_date,
-                                              phone, note, created_at, created_by, updated_at, updated_by)
-                        VALUES ('PERSON', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                              username, password_hash, must_change_password, role, status,
+                                              personal_code, category, birth_date, phone, note, created_at,
+                                              created_by, updated_at, updated_by)
+                        VALUES ('PERSON', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, p.lastName, p.firstName, searchText(p, finalUsername), p.rankId,
-                        p.positionId, finalUnitId, finalUsername, hash, role, code, p.category,
+                        p.positionId, finalUnitId, finalUsername, hash, hash == null ? 0 : 1, role, code, p.category,
                         p.birthDate, p.phone, p.note, now, actor.userId(), now, actor.userId());
             } catch (DuplicateKeyException e) {
                 throw duplicate(code, finalUsername, null);
@@ -364,13 +365,16 @@ public class UserService {
         inTx(() -> {
             UserView before = view(id);
             try {
-                // Thu hồi tài khoản thì bỏ luôn mật khẩu (DB không cho có mật khẩu mà không có tài khoản).
+                // Thu hồi tài khoản thì bỏ luôn mật khẩu (DB không cho có mật khẩu mà không có tài khoản). Cấp mới
+                // nhận mật khẩu mặc định nên bị bắt đổi; đổi tên giữ nguyên mật khẩu và cờ.
                 jdbc.update("""
                         UPDATE app_user SET username = ?,
                                password_hash = CASE WHEN ? IS NULL THEN NULL ELSE COALESCE(password_hash, ?) END,
+                               must_change_password = CASE WHEN ? IS NULL THEN 0 WHEN ? IS NOT NULL THEN 1
+                                                           ELSE must_change_password END,
                                search_text = ?, updated_at = ?, updated_by = ?, version = version + 1
                         WHERE id = ?
-                        """, username, username, hash,
+                        """, username, username, hash, username, hash,
                         VietnameseText.searchKey(before.lastName(), before.firstName(), before.personalCode(), username),
                         Times.now(clock), actor.userId(), id);
             } catch (DuplicateKeyException e) {
@@ -403,8 +407,11 @@ public class UserService {
         passwordPolicy.validate("newPassword", newPassword);
         String hash = encoder.encode(newPassword);
         inTx(() -> {
-            jdbc.update("UPDATE app_user SET password_hash = ?, updated_at = ?, updated_by = ?, version = version + 1 WHERE id = ?",
-                    hash, Times.now(clock), actor.userId(), id);
+            jdbc.update("""
+                    UPDATE app_user SET password_hash = ?, must_change_password = 1, updated_at = ?, updated_by = ?,
+                           version = version + 1
+                    WHERE id = ?
+                    """, hash, Times.now(clock), actor.userId(), id);
             audit.record(AuditAction.PASSWORD_RESET, "app_user", id, target.unitCode(), null, null);
             return null;
         });

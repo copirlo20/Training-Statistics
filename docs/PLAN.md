@@ -25,7 +25,7 @@ Dựa trên [PRD.md](PRD.md) và [ARCHITECTURE.md](ARCHITECTURE.md). Các mốc 
 | M6 | Thống kê, dashboard, in ấn | Đạt |
 | M7 | Sao lưu, nâng cấp, quản trị, kiểm thử tổng thể, tài liệu bàn giao | Đạt |
 
-Kết quả kiểm tra gần nhất: backend 187 test đạt (1 bỏ qua là `LoadTest`, chạy riêng với `-Dload=true` đạt); `tools/ui-check.ps1` 382/382 trên DB mới, máy chủ thử cổng riêng; `installer/windows/test-upgrade.ps1` đạt; rà soát mã bằng PMD, CPD và công cụ kiểm JS, CSS: hết đoạn trùng lặp (CPD 0), hết hàm quá phức tạp, không import thừa, không `export` thừa; PMD còn lại hai loại có chủ đích (tham số dài ở constructor tiêm phụ thuộc; đổi lỗi kỹ thuật thành lỗi 4xx nên không giữ stack trace).
+Kết quả kiểm tra gần nhất: backend 192 test đạt (1 bỏ qua là `LoadTest`, chạy riêng với `-Dload=true` đạt); `tools/ui-check.ps1` 392/392 trên DB mới, máy chủ thử cổng riêng; `installer/windows/test-upgrade.ps1` đạt; rà soát mã bằng PMD, CPD và công cụ kiểm JS, CSS: hết đoạn trùng lặp (CPD 0), hết hàm quá phức tạp, không import thừa, không `export` thừa; PMD còn lại hai loại có chủ đích (tham số dài ở constructor tiêm phụ thuộc; đổi lỗi kỹ thuật thành lỗi 4xx nên không giữ stack trace).
 
 ---
 
@@ -113,6 +113,7 @@ Mục tiêu: loại bỏ sớm hai rủi ro kỹ thuật lớn nhất, là SQLit
 - [x] Đăng xuất `POST /auth/logout`
 - [x] `GET /me` trả thông tin, vai trò, đơn vị, các lớp đang làm giáo viên
 - [x] `PUT /me/password` đổi mật khẩu (nhập mật khẩu cũ)
+- [x] Bắt đổi mật khẩu ở lần đăng nhập đầu khi mật khẩu do người khác đặt (tạo, cấp tài khoản, nhập Excel, đặt lại): cột `must_change_password`, `PasswordChangeGate` trả 403 `PASSWORD_CHANGE_REQUIRED` cho mọi API trừ `/auth/*`, `GET /me`, `PUT /me/password` (A14, `MustChangePasswordTest`)
 - [x] CSRF: cấp token, kiểm tra header ở mọi request ghi
 - [x] Phiên hết hạn sau thời gian không hoạt động (cấu hình được)
 - [x] Chặn đăng nhập với user `INACTIVE`, `DELETED`, user `UNIT`, user không có tài khoản
@@ -153,6 +154,7 @@ Mục tiêu: loại bỏ sớm hai rủi ro kỹ thuật lớn nhất, là SQLit
 - [x] `ui/form.js` kiểm tra dữ liệu và hiển thị lỗi theo từng trường
 - [x] `ui/modal.js`, `ui/multi-select.js` (chọn nhiều có ô đánh dấu), `ui/pagination.js`, `ui/toast.js`
 - [x] Trang đăng nhập, khung điều hướng theo vai trò, trang đổi mật khẩu
+- [x] Form đặt mật khẩu mới trên trang đăng nhập khi `mustChangePassword`; vào thẳng ứng dụng hoặc gặp 403 `PASSWORD_CHANGE_REQUIRED` thì về form này, đổi xong về đúng trang định mở (ui-check `lan-dau-*`, ảnh 360 và 1366 px)
 - [x] Kiểm tra giao diện không gọi tài nguyên ngoài (CDN, font, ảnh) khi chạy không có Internet
 
 ### M1.8 Phong cách giao diện và responsive nền tảng (R21, R23)
@@ -452,7 +454,7 @@ Mục tiêu: loại bỏ sớm hai rủi ro kỹ thuật lớn nhất, là SQLit
 
 - [x] Khi khởi động: sao lưu DB rồi chạy Flyway (khi DB đã có dữ liệu và có migration mới; `admin/UpgradeBackup`)
 - [x] Migration lỗi thì không khởi động và giữ nguyên bản sao lưu (`UpgradeBackupTest`)
-- [x] Bản cài trước lần đổi chú thích `V1__init.sql` tự cập nhật checksum khi khởi động bản mới; chênh lệch checksum khác vẫn bị chặn (`UpgradeBackup.alignV1Checksum`, `UpgradeBackupTest`)
+- [x] Bản cài chạy `V1__init.sql` cũ (trước lần đổi chú thích, hoặc trước khi thêm cột `must_change_password`) tự cập nhật khi khởi động bản mới: sao lưu, thêm cột, bắt đổi mật khẩu cho tài khoản đã cấp mà chưa từng đăng nhập (trừ Super Admin tạo lúc cài), đổi checksum; chênh lệch checksum khác vẫn bị chặn (`UpgradeBackup.alignV1`, `UpgradeBackupTest`)
 - [x] Bộ cài nâng cấp ghi đè chương trình, không chạm dữ liệu (`installer/windows/test-upgrade.ps1`, chạy được không cần Administrator; `-SkipService` không dừng dịch vụ thật đang chạy)
 
 ### M7.3 Quản trị hệ thống
@@ -488,7 +490,7 @@ Mục tiêu: loại bỏ sớm hai rủi ro kỹ thuật lớn nhất, là SQLit
 
 Mỗi dòng ứng với một tiêu chí trong mục "Tiêu chí hoàn thành" của PRD.md đã được kiểm bằng test, `ui-check` chạy thật hoặc chủ dự án xác nhận.
 
-Căn cứ chung: backend 187 test đạt (1 bỏ qua là `LoadTest`, chạy riêng đạt); `ui-check` 382/382 trên DB mới, máy chủ thử cổng riêng; `installer/windows/test-upgrade.ps1` đạt.
+Căn cứ chung: backend 192 test đạt (1 bỏ qua là `LoadTest`, chạy riêng đạt); `ui-check` 392/392 trên DB mới, máy chủ thử cổng riêng; `installer/windows/test-upgrade.ps1` đạt.
 
 - [x] Cài trên máy Windows sạch, không cần Java, truy cập được qua LAN, chạy không cần Internet — chủ dự án xác nhận; `test-upgrade.ps1` đạt; không có request ra ngoài ở mọi trang (ui-check)
 - [x] Phân quyền theo nhánh đúng, kể cả khi gọi API trực tiếp; chuyển đơn vị thay đổi quyền đúng — `UserApiTest.adminNhanhANhanh404VoiNguoiNhanhKhacVaCapTren`, `chuyenSangNhanhKhacThiAdminCuMatQuyenNgay`, `r1AdminCap2ChuyenMotAdminSangDonViCap1ThiNguoiDoBiHaVeUser`; `ClassApiTest.adminChiThayNguoiHocTrongNhanhMinhOLopNhieuDonVi`, `chuyenDonViThiAdminCuMatQuyenXemChiTietNguoiHoc`; `StatsApiTest.gioiHanTheoPhamViVaDonViNgoaiPhamVi404`; `ScopeAndGuardsTest`; `EndpointAccessScanTest` (mọi endpoint: chưa đăng nhập 401, user thường ngoài danh sách cho phép bị chặn, Admin không vào được endpoint của Super Admin)

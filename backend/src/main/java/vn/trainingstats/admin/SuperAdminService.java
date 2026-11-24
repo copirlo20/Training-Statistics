@@ -94,7 +94,7 @@ public class SuperAdminService {
             }
             jdbc.update("""
                     UPDATE app_user
-                    SET password_hash = ?, status = 'ACTIVE', deleted_at = NULL, deleted_by = NULL,
+                    SET password_hash = ?, must_change_password = 0, status = 'ACTIVE', deleted_at = NULL, deleted_by = NULL,
                         updated_at = ?, updated_by = NULL, version = version + 1
                     WHERE id = ?
                     """, hash, now, id);

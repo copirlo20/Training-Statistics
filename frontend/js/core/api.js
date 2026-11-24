@@ -3,7 +3,8 @@
  * - Gửi kèm cookie phiên (cùng nguồn).
  * - Request ghi tự gắn token CSRF: đọc cookie XSRF-TOKEN, gửi lại trong header X-XSRF-TOKEN.
  *   Token đổi sau đăng nhập, nên luôn đọc cookie mới nhất, và thử lại một lần nếu máy chủ báo CSRF_INVALID.
- * - 401 thì chuyển về trang đăng nhập (trừ khi gọi với { allow401: true }).
+ * - 401 thì chuyển về trang đăng nhập (trừ khi gọi với { allow401: true }). 403 PASSWORD_CHANGE_REQUIRED (mật khẩu do
+ *   người khác đặt, chưa tự đổi) cũng về trang đăng nhập, nơi hiện form đặt mật khẩu mới.
  * - Lỗi trả về là ApiError mang { status, code, message, fieldErrors }.
  */
 
@@ -41,7 +42,7 @@ async function csrfToken(forceRefresh = false) {
     return token;
 }
 
-function redirectToLogin() {
+export function redirectToLogin() {
     const next = location.hash && location.hash !== '#/' ? '?next=' + encodeURIComponent(location.hash) : '';
     location.replace('login.html' + next);
 }
@@ -86,6 +87,9 @@ export async function api(path, options = {}) {
     const data = await safeJson(res);
     if (res.ok) return data;
     if (res.status === 401 && !allow401) {
+        redirectToLogin();
+    }
+    if (res.status === 403 && data?.code === 'PASSWORD_CHANGE_REQUIRED' && !location.pathname.endsWith('/login.html')) {
         redirectToLogin();
     }
     throw new ApiError(res.status, data);

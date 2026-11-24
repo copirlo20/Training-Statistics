@@ -25,10 +25,11 @@ public class MeService {
      * @param adminLevel            cấp admin (bằng cấp của đơn vị), null nếu không phải Admin
      * @param sessionTimeoutMinutes phiên hết hạn sau ngần ấy phút không thao tác. Frontend dùng để ngừng hỏi thông báo
      *                              định kỳ khi người dùng không thao tác, nếu không phiên sẽ không bao giờ hết hạn
+     * @param mustChangePassword    phải đổi mật khẩu trước khi dùng các chức năng khác (PRD #17)
      */
     public record Me(long id, String username, String displayName, String role, Integer adminLevel,
                      UnitInfo unit, RankInfo rank, String position, List<TeachingClass> teachingClasses,
-                     int sessionTimeoutMinutes) {
+                     int sessionTimeoutMinutes, boolean mustChangePassword) {
     }
 
     private final JdbcTemplate jdbc;
@@ -58,7 +59,7 @@ public class MeService {
             String role = rs.getString("role");
             Integer adminLevel = "ADMIN".equals(role) && unit != null ? unit.level() : null;
             return new Me(rs.getLong("id"), rs.getString("username"), p.displayName(), role, adminLevel, unit, rank,
-                    rs.getString("position_name"), List.of(), 0);
+                    rs.getString("position_name"), List.of(), 0, false);
         }, p.userId());
 
         List<TeachingClass> classes = jdbc.query("SELECT c.id, c.name, " + ClassStatusSql.effective("c", "p") + """
@@ -71,6 +72,6 @@ public class MeService {
                 p.userId());
 
         return new Me(base.id(), base.username(), base.displayName(), base.role(), base.adminLevel(), base.unit(),
-                base.rank(), base.position(), classes, settings.sessionTimeoutMinutes());
+                base.rank(), base.position(), classes, settings.sessionTimeoutMinutes(), p.mustChangePassword());
     }
 }

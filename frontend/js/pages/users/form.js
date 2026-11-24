@@ -48,7 +48,7 @@ export async function render(container, params) {
         // Trang sửa: Ghi chú chiếm cả hàng; trang thêm: nằm ở ô cuối hàng Tài khoản, Quyền để form vừa một màn.
         note: { name: 'note', label: 'Ghi chú', type: 'textarea', full: editing, maxLength: 500, value: user?.note },
         username: { name: 'username', label: 'Tài khoản đăng nhập', maxLength: 50, autocomplete: 'off',
-            hint: `Để trống nếu không cần đăng nhập. Mật khẩu ban đầu: ${DEFAULT_PASSWORD}.` },
+            hint: `Để trống nếu không cần đăng nhập. Mật khẩu ban đầu: ${DEFAULT_PASSWORD}, đổi ở lần đăng nhập đầu.` },
         role: { name: 'role', label: 'Quyền', type: 'select', value: 'USER', options: [
             { value: 'USER', label: 'Người dùng' },
             { value: 'ADMIN', label: 'Admin (quản lý đơn vị và cấp dưới)' }],

@@ -100,6 +100,9 @@ CREATE TABLE app_user (
     unit_id       INTEGER REFERENCES unit (id),
     username      TEXT COLLATE NOCASE UNIQUE,
     password_hash TEXT,
+    -- 1 khi mật khẩu do người khác đặt (tạo hoặc cấp tài khoản, nhập Excel, đặt lại mật khẩu): phải tự đổi trước khi
+    -- dùng chức năng khác. Chỉ chính chủ đổi mật khẩu mới về 0 (ARCHITECTURE A14).
+    must_change_password INTEGER NOT NULL DEFAULT 0 CHECK (must_change_password IN (0, 1)),
     role          TEXT    NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN', 'SUPER_ADMIN')),
     status        TEXT    NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE', 'DELETED')),
     personal_code TEXT UNIQUE,

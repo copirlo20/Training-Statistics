@@ -182,10 +182,10 @@ Mỗi đặc tả gồm: tác nhân, điều kiện trước, luồng chính, lu
 |---|---|
 | **Tác nhân** | Người dùng, Admin, Giám khảo, Super Admin (đều có tài khoản) |
 | **Điều kiện trước** | Người đó có `username` và mật khẩu; trạng thái `ACTIVE`; là người `PERSON` |
-| **Luồng chính** | 1. Mở trang đăng nhập. 2. Giao diện lấy token CSRF. 3. Nhập tài khoản, mật khẩu, gửi. 4. Hệ thống kiểm mật khẩu BCrypt, tạo phiên (cookie `HttpOnly`). 5. Chuyển tới trang chủ theo vai trò |
+| **Luồng chính** | 1. Mở trang đăng nhập. 2. Giao diện lấy token CSRF. 3. Nhập tài khoản, mật khẩu, gửi. 4. Hệ thống kiểm mật khẩu BCrypt, tạo phiên (cookie `HttpOnly`). 5. Chuyển tới trang chủ theo vai trò. Nếu mật khẩu do người khác đặt (mới cấp hoặc vừa được đặt lại): ở lại trang đăng nhập, đặt mật khẩu mới (UC02) rồi mới vào ứng dụng |
 | **Thay thế** | Sai tài khoản hoặc mật khẩu: `401 INVALID_CREDENTIALS` (cùng một câu cho cả hai trường hợp). Tài khoản bị khóa hoặc đã xóa mềm, mật khẩu đúng: `401 ACCOUNT_LOCKED`. Người loại đơn vị hoặc không có tài khoản: không đăng nhập được |
 | **Kết quả** | Có phiên làm việc; hết hạn sau thời gian không hoạt động (mặc định 30 phút). Đăng xuất hủy phiên |
-| **Quy tắc** | Không ép đổi mật khẩu lần đầu, **không khóa và không trì hoãn khi nhập sai** (rủi ro đã chấp nhận, ARCHITECTURE R4); mọi lần đăng nhập thành công và thất bại đều ghi nhật ký kèm IP |
+| **Quy tắc** | Chưa đổi mật khẩu do người khác đặt thì máy chủ chặn mọi chức năng khác (`403 PASSWORD_CHANGE_REQUIRED`), chỉ cho đổi mật khẩu và đăng xuất. **Không khóa và không trì hoãn khi nhập sai** (rủi ro đã chấp nhận, ARCHITECTURE R4); mọi lần đăng nhập thành công và thất bại đều ghi nhật ký kèm IP |
 
 ### UC02. Đổi mật khẩu của mình
 
@@ -193,8 +193,8 @@ Mỗi đặc tả gồm: tác nhân, điều kiện trước, luồng chính, lu
 |---|---|
 | **Điều kiện trước** | Đã đăng nhập |
 | **Luồng chính** | 1. Mở "Đổi mật khẩu". 2. Nhập mật khẩu hiện tại và mật khẩu mới. 3. Hệ thống kiểm mật khẩu cũ, độ dài tối thiểu theo cài đặt (mặc định 8) và tối đa 72 byte, lưu BCrypt |
-| **Ngoại lệ** | Sai mật khẩu hiện tại hoặc mật khẩu mới quá ngắn: lỗi theo ô |
-| **Quy tắc** | Tài khoản mới cấp có mật khẩu mặc định `123456789` và không bị ép đổi; nên nhắc người dùng đổi ngay |
+| **Ngoại lệ** | Sai mật khẩu hiện tại, mật khẩu mới quá ngắn hoặc trùng mật khẩu hiện tại: lỗi theo ô |
+| **Quy tắc** | Tài khoản mới cấp có mật khẩu mặc định `123456789`. Mật khẩu do người khác đặt (cấp tài khoản, nhập Excel, đặt lại mật khẩu) **bắt buộc** đổi ở lần đăng nhập đầu, trên trang đăng nhập; vừa đăng nhập thì không phải nhập lại mật khẩu hiện tại |
 
 ### UC11. Quản lý người dùng
 
@@ -414,6 +414,12 @@ sequenceDiagram
     alt đúng và ACTIVE
         API->>DB: audit LOGIN_SUCCESS, cập nhật last_login_at
         API-->>FE: 200 Me, cookie phiên
+        opt Me.mustChangePassword
+            FE->>U: Form đặt mật khẩu mới
+            U->>FE: Mật khẩu mới
+            FE->>API: PUT /me/password
+            API->>DB: Lưu BCrypt, tắt must_change_password, audit PASSWORD_CHANGED
+        end
     else sai hoặc bị khóa
         API->>DB: audit LOGIN_FAILED (kèm IP)
         API-->>FE: 401 INVALID_CREDENTIALS hoặc ACCOUNT_LOCKED

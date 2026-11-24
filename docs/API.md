@@ -94,7 +94,7 @@ Mọi lỗi có dạng thống nhất:
 |---|---|
 | 400 | Dữ liệu sai (`VALIDATION_FAILED` kèm `fieldErrors`), file sai, thiếu tham số |
 | 401 | Chưa đăng nhập (`UNAUTHENTICATED`), sai tài khoản hoặc mật khẩu (`INVALID_CREDENTIALS`) |
-| 403 | Đã đăng nhập nhưng sai vai trò (`FORBIDDEN`), thiếu CSRF (`CSRF_INVALID`), hoặc quy tắc nghiệp vụ (`SELF_ACTION`, `SELF_GRADING`, `NOT_TEACHER`...) |
+| 403 | Đã đăng nhập nhưng sai vai trò (`FORBIDDEN`), thiếu CSRF (`CSRF_INVALID`), chưa đổi mật khẩu do người khác đặt (`PASSWORD_CHANGE_REQUIRED`), hoặc quy tắc nghiệp vụ (`SELF_ACTION`, `SELF_GRADING`, `NOT_TEACHER`...) |
 | 404 | Không có hoặc **ngoài phạm vi** |
 | 409 | Trùng (`DUPLICATE`...), đã chấm điểm (`ALREADY_GRADED`), sai `version` (`VERSION_CONFLICT`), trạng thái không cho phép (`CLASS_CLOSED`...) |
 | 500 | Lỗi lạ, trả câu chung, không lộ SQL (`INTERNAL_ERROR`) |
@@ -116,10 +116,10 @@ Tham số lọc nhận nhiều giá trị bằng dấu phẩy (`unitId=1,2`) ho�
 | Method | Route | Ai | Mô tả |
 |---|---|---|---|
 | GET | `/auth/csrf` | Công khai | Cấp token CSRF, đặt cookie `XSRF-TOKEN` |
-| POST | `/auth/login` | Công khai | Đăng nhập. Body `{username, password}`. Trả `Me`. Lỗi: `401 INVALID_CREDENTIALS` (sai tài khoản hoặc mật khẩu, cùng một câu), `401 ACCOUNT_LOCKED` (chỉ báo khi mật khẩu đúng nhưng tài khoản bị khóa). Không trì hoãn, không khóa khi nhập sai; mọi lần thất bại ghi nhật ký kèm IP |
+| POST | `/auth/login` | Công khai | Đăng nhập. Body `{username, password}`. Trả `Me`. Lỗi: `401 INVALID_CREDENTIALS` (sai tài khoản hoặc mật khẩu, cùng một câu), `401 ACCOUNT_LOCKED` (chỉ báo khi mật khẩu đúng nhưng tài khoản bị khóa). Không trì hoãn, không khóa khi nhập sai; mọi lần thất bại ghi nhật ký kèm IP. `Me.mustChangePassword = true` thì phải đổi mật khẩu trước (xem dưới) |
 | POST | `/auth/logout` | Đã đăng nhập | Đăng xuất. `204` |
 | GET | `/me` | Đã đăng nhập | Thông tin của mình |
-| PUT | `/me/password` | Đã đăng nhập | Đổi mật khẩu. Body `{currentPassword, newPassword}`. `204`. Độ dài tối thiểu theo cài đặt, tối đa 72 byte |
+| PUT | `/me/password` | Đã đăng nhập | Đổi mật khẩu. Body `{currentPassword, newPassword}`. `204`. Độ dài tối thiểu theo cài đặt, tối đa 72 byte, phải khác mật khẩu hiện tại. Đổi xong thì `mustChangePassword` về `false` |
 | GET | `/me/classes` | Đã đăng nhập | Các nội dung mình tham gia và điểm (D5) |
 
 `Me`:
@@ -130,11 +130,14 @@ Tham số lọc nhận nhiều giá trị bằng dấu phẩy (`unitId=1,2`) ho�
   "role": "SUPER_ADMIN", "adminLevel": null,
   "unit": null, "rank": null, "position": null,
   "teachingClasses": [ { "id": 3, "name": "...", "status": "OPEN" } ],
-  "sessionTimeoutMinutes": 30
+  "sessionTimeoutMinutes": 30,
+  "mustChangePassword": false
 }
 ```
 
 `adminLevel` suy ra từ đơn vị (1 hoặc 2), `null` với Super Admin và người dùng thường.
+
+`mustChangePassword` là `true` khi mật khẩu do người khác đặt (tạo hoặc cấp tài khoản, nhập Excel, đặt lại mật khẩu; ARCHITECTURE A14). Khi đó mọi API trả `403 PASSWORD_CHANGE_REQUIRED`, trừ `/auth/*`, `GET /me` và `PUT /me/password`. Máy chủ đọc cờ ở mỗi request, nên phiên đang mở bị chặn ngay khi Admin đặt lại mật khẩu.
 
 ---
 
@@ -163,10 +166,10 @@ Tham số lọc nhận nhiều giá trị bằng dấu phẩy (`unitId=1,2`) ho�
 | GET | `/users/{id}` | Trong phạm vi, hoặc chính mình | Chi tiết (`UserView`). User thường chỉ gọi cho chính mình, id khác `404` (A10) |
 | POST | `/users` | Admin+ trong phạm vi | Tạo người `PERSON`. `201`. Đơn vị phải thuộc phạm vi người tạo |
 | PUT | `/users/{id}` | Admin+ trong phạm vi | Sửa **hồ sơ** (kèm `version`). Không gồm tài khoản, đơn vị, quyền, trạng thái (A5) |
-| PUT | `/users/{id}/account` | Admin+ trong phạm vi | Cấp, đổi tên hoặc thu hồi tài khoản đăng nhập. Body `{username}`; để trống là thu hồi (chỉ với người dùng thường). Tài khoản mới nhận mật khẩu mặc định `123456789` (A13). Trùng `409` |
+| PUT | `/users/{id}/account` | Admin+ trong phạm vi | Cấp, đổi tên hoặc thu hồi tài khoản đăng nhập. Body `{username}`; để trống là thu hồi (chỉ với người dùng thường). Tài khoản mới nhận mật khẩu mặc định `123456789` (A13) và phải đổi ở lần đăng nhập đầu. Trùng `409` |
 | PATCH | `/users/{id}/status` | Admin+ trong phạm vi | Body `{status}`: `ACTIVE`, `INACTIVE`, `DELETED`. `ACTIVE` dùng để mở khóa hoặc khôi phục. Không tự đổi của mình; luôn còn một Super Admin |
 | PUT | `/users/{id}/role` | Admin+ trong phạm vi | Body `{role, unitId}`. Admin cấp `ADMIN` cho người trong nhánh; chỉ Super Admin cấp `SUPER_ADMIN`. Lên `SUPER_ADMIN` thì bỏ đơn vị; hạ xuống thì bắt buộc `unitId` (A6) |
-| POST | `/users/{id}/reset-password` | Admin+ trong phạm vi | Body `{newPassword}`. `204`. Không dùng cho chính mình (dùng `/me/password`); tài khoản Super Admin với Admin là `404` (A8) |
+| POST | `/users/{id}/reset-password` | Admin+ trong phạm vi | Body `{newPassword}`. `204`. Người đó phải đổi mật khẩu ở lần đăng nhập kế tiếp. Không dùng cho chính mình (dùng `/me/password`); tài khoản Super Admin với Admin là `404` (A8) |
 | POST | `/users/{id}/move` | Admin+ trong phạm vi | Chuyển sang **bất kỳ** đơn vị. Body `{unitId}`. Trả `{downgraded, stillInScope, user}`. Người chuyển không phải Super Admin và đích ngoài phạm vi: người được chuyển nếu là `ADMIN` bị **tự hạ về `USER`** và ghi nhật ký (R1); `user` là null khi người chuyển không còn quyền xem (A7) |
 | GET | `/users/{id}/history` | Trong phạm vi, hoặc chính mình | Lịch sử điểm qua các đợt, cùng dạng `/me/classes` (D5) |
 | GET | `/users/{id}/print` | Trong phạm vi, hoặc chính mình | Dữ liệu trang in thông tin cá nhân (cấp bậc tên đầy đủ) |
@@ -434,7 +437,7 @@ Mọi thao tác trên đều ghi nhật ký (`BACKUP_CREATED`, `BACKUP_FAILED`, 
 | Method | Route | Ai | Dữ liệu |
 |---|---|---|---|
 | GET | `/users/import-template` | Admin+ | Mẫu người dùng |
-| POST | `/users/import` | Admin+ | Nhập người dùng (E4): khớp theo mã định danh (có thì cập nhật, không thì tạo; để trống mã thì tự cấp). Ô trống ở cột không bắt buộc giữ giá trị cũ. Mỗi dòng phải có đơn vị trong phạm vi. Cột Tài khoản, Quyền cấp tài khoản; Admin thiếu tài khoản báo lỗi ngay ở bước kiểm tra |
+| POST | `/users/import` | Admin+ | Nhập người dùng (E4): khớp theo mã định danh (có thì cập nhật, không thì tạo; để trống mã thì tự cấp). Ô trống ở cột không bắt buộc giữ giá trị cũ. Mỗi dòng phải có đơn vị trong phạm vi. Cột Tài khoản, Quyền cấp tài khoản (mật khẩu `123456789`, phải đổi ở lần đăng nhập đầu); Admin thiếu tài khoản báo lỗi ngay ở bước kiểm tra |
 | GET | `/classes/import-template` | Super Admin | Mẫu nội dung (sheet `NoiDung`, `NguoiHoc`) |
 | POST | `/classes/import` | Super Admin | Nhập nhiều nội dung kèm người học (E5). Đợt chọn trong file theo từng nội dung (phải đang mở) |
 | GET | `/classes/{classId}/results/import-template` | Giám khảo | Mẫu điểm một nội dung: danh sách đầy đủ của nội dung, người đã có điểm hiện sẵn và khóa ô (E6) |
@@ -458,7 +461,7 @@ Mọi thao tác trên đều ghi nhật ký (`BACKUP_CREATED`, `BACKUP_FAILED`, 
 | 400 | `NO_ACCOUNT`, `SELF_RESET`, `SUPER_ADMIN_NO_UNIT`, `UNIT_RECORD` | Thiếu tài khoản khi cấp quyền; đặt lại mật khẩu cho chính mình; Super Admin không có đơn vị; bản ghi đại diện đơn vị không sửa được |
 | 400 | `INVALID_FILE`, `INVALID_TEMPLATE`, `FILE_REQUIRED`, `FILE_TOO_LARGE`, `TOO_MANY_ROWS`, `BACKUP_FAILED` | Nhập Excel, sao lưu |
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `ACCOUNT_LOCKED` | Đăng nhập |
-| 403 | `FORBIDDEN`, `CSRF_INVALID` | Sai vai trò; thiếu hoặc sai CSRF |
+| 403 | `FORBIDDEN`, `CSRF_INVALID`, `PASSWORD_CHANGE_REQUIRED` | Sai vai trò; thiếu hoặc sai CSRF; chưa đổi mật khẩu do người khác đặt |
 | 403 | `SELF_ACTION`, `SELF_GRADING`, `NOT_TEACHER`, `NOT_REQUESTER`, `HAS_RESULT` | Tự khóa, tự xóa, tự hạ quyền; giám khảo tự chấm; không phải giám khảo của nội dung; không phải người đề nghị; gỡ người đã có điểm không phải Super Admin |
 | 404 | `NOT_FOUND` | Không có hoặc ngoài phạm vi |
 | 409 | `VERSION_CONFLICT` | Sai `version` |

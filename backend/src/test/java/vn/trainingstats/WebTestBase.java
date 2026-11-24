@@ -105,7 +105,8 @@ abstract class WebTestBase {
                 return jdbc.queryForObject("SELECT id FROM app_user WHERE username = ?", Long.class, username);
             }
             jdbc.update("""
-                    UPDATE app_user SET unit_id = ?, role = ?, status = ?, password_hash = ?, deleted_at = ?
+                    UPDATE app_user SET unit_id = ?, role = ?, status = ?, password_hash = ?, deleted_at = ?,
+                           must_change_password = 0
                     WHERE id = ?
                     """, unit, role, status, hash, deletedAt, ids.get(0));
             return ids.get(0);

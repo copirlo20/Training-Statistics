@@ -145,7 +145,7 @@ export function openAccount(user, onDone) {
     modal = openModal({ title: granting ? 'Cấp tài khoản' : 'Đổi tài khoản', body: [
         h('p', null, user.fullName),
         granting ? h('div', { class: 'alert alert-info' }, h('p', null, 'Mật khẩu ban đầu là ',
-            h('strong', { class: 'mono' }, DEFAULT_PASSWORD), '. Báo người dùng đăng nhập rồi đổi mật khẩu.')) : null,
+            h('strong', { class: 'mono' }, DEFAULT_PASSWORD), '. Lần đăng nhập đầu, người dùng phải đặt mật khẩu mới.')) : null,
         form.element] });
 }
 
@@ -176,7 +176,7 @@ function openReset(user) {
         onSubmit: async (v) => {
             await api(`/users/${user.id}/reset-password`, { method: 'POST', body: { newPassword: v.newPassword } });
             modal.close();
-            toast('Đã đặt lại mật khẩu. Báo người dùng đăng nhập bằng mật khẩu mới.', { type: 'success' });
+            toast('Đã đặt lại mật khẩu. Người dùng đăng nhập bằng mật khẩu này rồi phải đặt mật khẩu mới.', { type: 'success' });
         },
     });
     modal = openModal({ title: `Đặt lại mật khẩu cho ${user.username}`, body: form.element });

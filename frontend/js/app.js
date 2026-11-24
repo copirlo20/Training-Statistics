@@ -1,3 +1,4 @@
+import { redirectToLogin } from './core/api.js';
 import { loadMe } from './core/auth.js';
 import { route, start } from './core/router.js';
 import { h, replace } from './ui/escape.js';
@@ -40,7 +41,12 @@ route('/requests/:id', { title: 'Đề nghị', load: () => import('./pages/requ
 async function main() {
     const main = document.getElementById('main');
     try {
-        await loadMe();
+        const me = await loadMe();
+        // Mật khẩu do người khác đặt: đổi xong ở trang đăng nhập mới vào được ứng dụng (máy chủ cũng chặn).
+        if (me.mustChangePassword) {
+            redirectToLogin();
+            return;
+        }
     } catch (e) {
         if (e?.status === 401) return;   // đang chuyển sang trang đăng nhập
         replace(main, h('div', { class: 'state-page' },

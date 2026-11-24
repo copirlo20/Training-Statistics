@@ -10,7 +10,7 @@ export function render(container) {
         templateUrl: '/api/v1/users/import-template',
         uploadPath: (dryRun) => `/users/import?dryRun=${dryRun}`,
         doneText: (r) => `Đã ghi: tạo mới ${r.counts.CREATE || 0} người, cập nhật ${r.counts.UPDATE || 0} người.`,
-        note: `Cột Tài khoản và Quyền (Người dùng hoặc Admin) để cấp tài khoản, cấp quyền luôn. Tài khoản mới có mật khẩu ${DEFAULT_PASSWORD}. `
+        note: `Cột Tài khoản và Quyền (Người dùng hoặc Admin) để cấp tài khoản, cấp quyền luôn. Tài khoản mới có mật khẩu ${DEFAULT_PASSWORD}, người dùng phải đổi ở lần đăng nhập đầu. `
             + 'Quyền để trống thì người mới là Người dùng. Admin bắt buộc có tài khoản.',
     });
     replace(container,

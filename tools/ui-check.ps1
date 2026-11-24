@@ -443,8 +443,12 @@ try {
   await send('/api/v1/users', { category: 'SQ', lastName: 'Phan Văn', firstName: 'Khảo', unitId: user.unit.id, username: gk, password: 'MatKhau@123' });
   const admin = 'uiadmin' + stamp;
   await send('/api/v1/users', { category: 'SQ', lastName: 'Lê Văn', firstName: 'Quản', personalCode: 'UIA-' + stamp, unitId: user.unit.id,
-    username: admin, password: 'MatKhau@123', role: 'ADMIN' });
-  await send('/api/v1/auth/login', { username: admin, password: 'MatKhau@123' });
+    username: admin, password: 'TamThoi@123', role: 'ADMIN' });
+  await send('/api/v1/auth/login', { username: admin, password: 'TamThoi@123' });
+  // Mat khau do Super Admin dat: phai tu doi truoc khi dung chuc nang khac (may chu tra 403 PASSWORD_CHANGE_REQUIRED).
+  const pw = await fetch('/api/v1/me/password', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': await token() },
+    body: JSON.stringify({ currentPassword: 'TamThoi@123', newPassword: 'MatKhau@123' }) });
+  if (pw.status !== 204) throw new Error('Admin mau khong doi duoc mat khau: ' + pw.status);
   const req = await send('/api/v1/classes/' + cls.id + '/requests', { type: 'ADD', userId: $uid });
   for (const p of [da, db]) await send('/api/v1/classes/' + acls.id + '/requests', { type: 'ADD', userId: p.id });
   await send('/api/v1/auth/login', { username: '$u', password: '$p' });
@@ -1985,6 +1989,60 @@ try {
 "@
     Invoke-Flow 'sau-dang-xuat-bi-chan' @"
 (async () => { const r = await fetch('/api/v1/me'); return r.status === 401 ? 'OK' : 'status ' + r.status; })()
+"@
+
+    # 5b. Dang nhap lan dau (giam khao mau, mat khau do Super Admin dat): phai dat mat khau moi truoc khi vao ung dung.
+    Set-Width 1366
+    [void](Open-Url "$BaseUrl/login.html")
+    $gk = $sample.teacher
+    [void](Invoke-Js "(() => { const f = document.querySelector('form'); f.username.value = '$gk'; f.password.value = 'MatKhau@123'; f.requestSubmit(); return true; })()")
+    Invoke-Flow 'lan-dau-phai-doi-mat-khau' @"
+(async () => { $waitJs
+  const f = await wait(() => document.querySelector('form')?.newPassword && document.querySelector('form'));
+  if (!f) return 'khong hien form dat mat khau moi: ' + location.href;
+  if (f.currentPassword) return 'hoi lai mat khau vua nhap khi dang nhap';
+  // May chu chan cac API khac (403 PASSWORD_CHANGE_REQUIRED) da co MustChangePasswordTest; goi o day thi trinh duyet ghi loi 403.
+  return document.querySelector('.alert-info')?.textContent.includes('quản trị viên đặt') ? 'OK' : 'thieu loi giai thich';
+})()
+"@
+    foreach ($w in $Widths) { Check 'login-doi-mat-khau' $w { Open-Url "$BaseUrl/login.html" } }
+    # Vao thang ung dung khi chua doi: bi chuyen ve trang dang nhap, giu trang dinh mo.
+    try { [void](Open-Url "$BaseUrl/index.html#/classes") } catch { }
+    Start-Sleep -Milliseconds 1500
+    [void](Wait-Ready)
+    $nxt = 'DatMoi@' + (Get-Random -Maximum 99999)
+    Invoke-Flow 'lan-dau-vao-ung-dung-bi-chuyen-ve' @"
+(async () => { $waitJs
+  const f = await wait(() => location.pathname.endsWith('login.html') && document.querySelector('form')?.newPassword && document.querySelector('form'));
+  if (!f) return 'khong bi chuyen ve form dat mat khau: ' + location.href;
+  if (!location.search.includes(encodeURIComponent('#/classes'))) return 'mat trang dinh mo: ' + location.search;
+  f.newPassword.value = '$nxt'; f.confirmPassword.value = '$nxt';
+  f.requestSubmit();
+  // Da co phien tu truoc nen phai nhap mat khau hien tai; de trong thi bao loi ngay o o do.
+  const err = await wait(() => document.querySelector('form .field-error:not(:empty)'));
+  return err?.textContent === 'Nhập mật khẩu hiện tại.' ? 'OK' : 'loi khong dung: ' + err?.textContent;
+})()
+"@
+    Invoke-Flow 'lan-dau-dat-mat-khau-moi' "(() => { const f = document.querySelector('form'); f.currentPassword.value = 'MatKhau@123'; f.requestSubmit(); return 'OK'; })()"
+    $ok = $false
+    for ($i = 0; $i -lt 50; $i++) {
+        Start-Sleep -Milliseconds 200
+        if (Invoke-Js "location.pathname.endsWith('index.html') && !!document.querySelector('.app-header .brand')") { $ok = $true; break }
+    }
+    if (-not $ok) { throw 'Doi mat khau lan dau xong khong vao duoc ung dung' }
+    [void](Wait-Ready)
+    Invoke-Flow 'lan-dau-doi-xong-vao-trang-dinh-mo' @"
+(async () => {
+  const me = await (await fetch('/api/v1/me')).json();
+  if (me.mustChangePassword) return 'van bi bat doi';
+  if (location.hash !== '#/classes') return 'khong ve trang dinh mo: ' + location.hash;
+  const r = await fetch('/api/v1/classes');
+  if (r.status !== 200) return 'van bi chan: ' + r.status;
+  await fetch('/api/v1/auth/csrf');
+  const t = decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)[1]);
+  const out = await fetch('/api/v1/auth/logout', { method: 'POST', headers: { 'X-XSRF-TOKEN': t } });
+  return out.status === 204 ? 'OK' : 'khong dang xuat duoc: ' + out.status;
+})()
 "@
 
     # 6. Admin mau (cung don vi voi nguoi mau): xem lop trong nhanh, trang tao de nghi, gui de nghi go qua giao dien.

@@ -159,6 +159,7 @@ Mở `http://localhost:8080/` (hoặc `http://<ip-máy-chủ>:<cổng>/` từ m�
 | Đăng nhập đúng bằng `admin` | Vào trang chủ có thẻ số liệu và biểu đồ |
 | Thu nhỏ cửa sổ dưới 600 px, hoặc mở trên điện thoại | Thanh tab ở đáy, bảng thành danh sách thẻ, menu "Thêm" chứa Đổi mật khẩu và Đăng xuất |
 | Đổi mật khẩu: để trống rồi bấm; nhập đúng | Mỗi ô báo lỗi riêng; đúng thì "Đã đổi mật khẩu." |
+| Cấp tài khoản cho một người, đăng xuất, đăng nhập bằng tài khoản đó với `123456789` | Ở lại trang đăng nhập, hiện form "Đặt mật khẩu mới"; đổi xong mới vào trang chủ. Mở thẳng `index.html` trước khi đổi thì bị đưa về form này |
 | Menu Nhật ký (Super Admin) | Danh sách thao tác, lọc theo người, hành động, ngày; "Xem" mở chi tiết |
 | Người dùng → "Thêm người dùng" | Form hai cột (một màn từ 1024 px); chọn đơn vị trong phạm vi, chuyên ngành dạng ô đánh dấu, đối tượng; để trống mã thì tự cấp `ND000001` |
 | Ô tìm kiếm, gõ không dấu | "nguyen van" tìm ra "Nguyễn Văn ..." |
@@ -243,6 +244,7 @@ Kết quả mong đợi:
 | Request ghi thiếu header CSRF | 403 `CSRF_INVALID` |
 | `/me` khi chưa đăng nhập hoặc sau khi đăng xuất | 401 `UNAUTHENTICATED` |
 | Đổi mật khẩu sai mật khẩu hiện tại, hoặc mật khẩu mới dưới 8 ký tự | 400, `fieldErrors` chỉ rõ trường |
+| Tài khoản mới cấp (mật khẩu mặc định) gọi API khác trước khi đổi mật khẩu | 403 `PASSWORD_CHANGE_REQUIRED`; `GET /me` vẫn được, trả `mustChangePassword: true` |
 | Nhật ký | Có `LOGIN_SUCCESS`, `LOGIN_FAILED`, `PASSWORD_CHANGED`, `LOGOUT` kèm IP |
 | Admin tạo đề nghị cho người ngoài nhánh | 404 |
 | Đóng nội dung (`PATCH /classes/{id}/status` `CLOSED`) rồi thêm người | 409 `CLASS_CLOSED` |
@@ -365,7 +367,9 @@ Nếu bản mới có migration cơ sở dữ liệu mới, khi khởi động �
 
 Kiểm logic nâng cấp mà không cần quyền Administrator: `installer\windows\test-upgrade.ps1` (mục 11.2).
 
-> **Quy tắc migration.** `V1__init.sql` là schema nền; không sửa nội dung file này kể cả chú thích vì Flyway tính checksum (ARCHITECTURE S13). Thay đổi schema thêm `V2__*.sql`. DB đã chạy `V1` trước khi chú thích của nó được chỉnh (checksum cũ `-669641724`) được ứng dụng **tự cập nhật** sang checksum mới `2136348535` ở lần khởi động đầu của bản mới; không cần làm gì. Mọi chênh lệch checksum khác vẫn làm ứng dụng dừng (xem mục 12.1).
+Nâng cấp từ bản chưa có chức năng bắt đổi mật khẩu lần đầu: ở lần khởi động đầu, ứng dụng **tự sao lưu** DB vào `backups\upgrade\trainingstats-upgrade-<thời điểm>-v1.db`, thêm cột `must_change_password` rồi mới chạy. Mọi tài khoản đã cấp mà **chưa từng đăng nhập** (trừ Super Admin tạo lúc cài) sẽ phải đặt mật khẩu mới ở lần đăng nhập đầu. Tài khoản đã đăng nhập ít nhất một lần không bị ảnh hưởng.
+
+> **Quy tắc migration.** `V1__init.sql` là schema nền; không sửa nội dung file này kể cả chú thích vì Flyway tính checksum (ARCHITECTURE S13). Thay đổi schema thêm file mới `V2__*.sql` trở đi. `V1` đã được sửa hai lần theo yêu cầu của chủ dự án (đổi chú thích; thêm cột `must_change_password`). DB đã chạy bản `V1` cũ (checksum `-669641724` hoặc `2136348535`) được ứng dụng **tự cập nhật** lên bản hiện tại (checksum `-527056567`, thêm cột nếu thiếu, có sao lưu trước) ở lần khởi động đầu của bản mới; không cần làm gì. Mọi chênh lệch checksum khác vẫn làm ứng dụng dừng (xem mục 12.1).
 
 ### 7.2 Gỡ cài đặt
 
@@ -454,7 +458,7 @@ cd D:\Training-Statistics\backend
 .\mvnw.cmd test -Dtest=LoadTest -Dload=true       # kiểm thử tải, mất vài phút
 ```
 
-Kết quả mong đợi: **187 test đạt, 0 lỗi**, 1 bỏ qua (`LoadTest`, chỉ chạy khi có `-Dload=true`). Báo cáo ở `backend\target\surefire-reports\`.
+Kết quả mong đợi: **192 test đạt, 0 lỗi**, 1 bỏ qua (`LoadTest`, chỉ chạy khi có `-Dload=true`). Báo cáo ở `backend\target\surefire-reports\`.
 
 Các dòng `ERROR ... Application run failed` hoặc "Migration of schema ... failed" trong log là của test **cố ý** thử nhánh lỗi (công cụ đặt lại, migration lỗi trong `UpgradeBackupTest`), không phải lỗi thật. Tiêu chí là dòng tổng kết `Failures: 0, Errors: 0`.
 
@@ -502,7 +506,7 @@ tools\ui-check.ps1 -BaseUrl http://localhost:18095 -Username admin -Password 'Ma
 | `-DebugPort` | 9333 | Cổng DevTools |
 | `-IgnoreHosts` | `*.kaspersky-labs.com` | Host bỏ qua (phần mềm diệt virus chèn vào trang) |
 
-Script thoát với mã 1 nếu có lỗi. Kết quả gần nhất: **382/382 đạt**. Muốn dừng máy chủ thử, tắt đúng tiến trình đang nghe cổng 18095; **không tắt hàng loạt tiến trình** (ví dụ mọi `msedge`) và không chạy ui-check vào dịch vụ cổng 8080.
+Script thoát với mã 1 nếu có lỗi. Kết quả gần nhất: **392/392 đạt**. Muốn dừng máy chủ thử, tắt đúng tiến trình đang nghe cổng 18095; **không tắt hàng loạt tiến trình** (ví dụ mọi `msedge`) và không chạy ui-check vào dịch vụ cổng 8080.
 
 **Mã hóa file:** `tools/ui-check.ps1` chứa chữ tiếng Việt trong các đoạn JS nên **phải lưu UTF-8 có BOM** (và CRLF). Windows PowerShell 5.1 đọc file không BOM theo ANSI và làm vỡ chữ, khiến các phép so sánh chữ luôn sai. Các script khác trong `installer\` chỉ dùng ASCII.
 
@@ -529,7 +533,7 @@ Trước khi kiểm từng trang, script nạp thử **mọi module** trong `fro
 
 | Nhóm | Kịch bản tiêu biểu | Kiểm |
 |---|---|---|
-| Phiên, nền tảng | `sai-mat-khau-bao-loi`, `doi-mat-khau`, `dang-xuat`, `sau-dang-xuat-bi-chan`, `nap-moi-module`, `bieu-tuong-svg-hop-le`, `thu-gon-thanh-ben`, `xem-nhanh-thong-bao`, `menu-chi-danh-dau-muc-dung` | Đăng nhập, đổi mật khẩu, đăng xuất, module nạp được, `icons.svg` hợp lệ và đủ biểu tượng, thanh bên, chuông, menu |
+| Phiên, nền tảng | `sai-mat-khau-bao-loi`, `doi-mat-khau`, `dang-xuat`, `sau-dang-xuat-bi-chan`, `lan-dau-phai-doi-mat-khau`, `lan-dau-vao-ung-dung-bi-chuyen-ve`, `lan-dau-doi-xong-vao-trang-dinh-mo`, `nap-moi-module`, `bieu-tuong-svg-hop-le`, `thu-gon-thanh-ben`, `xem-nhanh-thong-bao`, `menu-chi-danh-dau-muc-dung` | Đăng nhập, đổi mật khẩu, bắt đổi mật khẩu lần đầu (ảnh `login-doi-mat-khau-*`), đăng xuất, module nạp được, `icons.svg` hợp lệ và đủ biểu tượng, thanh bên, chuông, menu |
 | Thành phần chung | `phan-trang-nhat-ky`, `loc-theo-hanh-dong`, `bang-sap-xep`, `hop-thoai-xac-nhan`, `thanh-phan-select-nhieu-lua-chon` | Phân trang, lọc, sắp xếp (`aria-sort`), hộp thoại xác nhận (Esc), chọn nhiều |
 | Người dùng | `tao-nguoi-dung-qua-form`, `tim-kiem-khong-dau`, `nguoi-dung-loc-nhieu-lua-chon`, `khoa-mo-khoa-tren-dong`, `thao-tac-khac-tren-dong-nguoi-dung`, `cap-tai-khoan-o-chi-tiet`, `chuyen-don-vi-chon-radio`, `dat-lai-mat-khau-qua-giao-dien` | Form vừa màn 1366×900, mã tự cấp `ND...`, tìm không dấu, bộ lọc hai hàng, thao tác trên dòng, cấp tài khoản, chuyển đơn vị |
 | Nội dung, người học, đề nghị | `them-noi-dung-qua-hop-thoai-kem-giam-khao`, `them-nguoi-vao-lop-qua-giao-dien`, `them-don-vi-vao-lop-qua-giao-dien`, `go-nguoi-va-loc-da-go`, `ghi-ly-do-vang-qua-giao-dien`, `nguoi-hoc-tim-nhanh-loc-nhieu-don-vi`, `nguoi-hoc-loc-tinh-trang-xep-loai`, `noi-dung-chua-cham-xong-noi-bat`, `thao-tac-tren-dong-lop`, `duyet-de-nghi-qua-giao-dien`, `duyet-hang-loat-theo-noi-dung`, `bam-thong-bao-mo-de-nghi`, `chuong-co-so-chua-doc`, `admin-de-nghi-go-qua-giao-dien`, `admin-tao-de-nghi-them-don-vi` | Hộp thoại thêm nội dung, thêm, gỡ người, lọc, tiến độ chấm, duyệt hàng loạt, thông báo, Admin chỉ thấy nhánh mình |
@@ -587,7 +591,7 @@ Lưu ý: ảnh chụp cả trang (dài hơn 900 px) vẽ thanh tab đáy ở v�
 | `Unrecognized option: --app.data-dir` (hoặc `--server.port`) khi `spring-boot:run` | Tham số `-Dspring-boot.run.arguments=...` bị tách, hoặc truyền vào `Start-Process` không có nháy bao | Đặt **cả** `"-Dspring-boot.run.arguments=--a=1 --b=2"` trong một cặp nháy kép; trong `Start-Process -ArgumentList` cũng bọc nguyên cả đối số |
 | `Could not find or load main class .encoding=UTF-8` | PowerShell 5.1 tách `-Dfile.encoding=UTF-8` tại dấu chấm khi gọi chương trình ngoài | Đặt tham số `-Dx.y=z` **trong nháy**: `'-Dfile.encoding=UTF-8'` (các script bộ cài đã làm; bản script cũ phải build, cài lại) |
 | `Found more than one migration with version 1` | File migration đã xóa còn trong `target\classes` | `mvnw.cmd clean package ...` (luôn có `clean`) |
-| `Migration checksum mismatch for migration version 1` | Nội dung `V1__init.sql` trong bản cài khác với lúc DB được tạo (file migration bị sửa). Riêng lần đổi chú thích đã ghi nhận (`-669641724` → `2136348535`) thì ứng dụng tự cập nhật, không báo lỗi này | Không sửa file migration đã có. Bản cài cũ hơn bản có `UpgradeBackup.alignV1Checksum` (bộ cài build trước ngày 2026-11-24 lúc sửa lỗi này): build lại bằng mã hiện tại rồi chạy lại `install.ps1` |
+| `Migration checksum mismatch for migration version 1` | Nội dung `V1__init.sql` trong bản cài khác với lúc DB được tạo (file migration bị sửa). Riêng các bản `V1` cũ đã ghi nhận (`-669641724`, `2136348535`) thì ứng dụng tự cập nhật lên bản hiện tại (`-527056567`), không báo lỗi này | Không sửa file migration đã có. Bản cài cũ hơn bản có `UpgradeBackup` tự cập nhật `V1` (bộ cài build trước ngày 2026-11-24): build lại bằng mã hiện tại rồi chạy lại `install.ps1` |
 | Test lỗi, surefire không nạp được lớp test khi dự án và `TEMP` khác ổ đĩa | Giới hạn của Maven surefire trên Windows | Đã xử lý bằng `-Djdk.net.URLClassPath.disableClassPathURLCheck=true` trong `pom.xml`; không cần làm gì |
 | `Port 8080 was already in use` | Dịch vụ thật hoặc tiến trình khác đang dùng cổng | Chạy bản thử ở cổng khác (`--server.port=18095`, mục 3.3). **Đừng dừng dịch vụ thật** chỉ để chạy thử |
 | Máy chủ lên nhưng đăng nhập báo sai, DB mới | Chưa tạo Super Admin | Mục 3.1 |

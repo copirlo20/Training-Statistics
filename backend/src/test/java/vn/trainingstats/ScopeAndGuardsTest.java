@@ -31,7 +31,7 @@ class ScopeAndGuardsTest extends DbTestBase {
     UserGuards guards;
 
     private static UserPrincipal principal(long id, Role role, String unitCode, Integer level) {
-        return new UserPrincipal(id, "u" + id, role, unitCode == null ? null : 1L, unitCode, level, "Test");
+        return new UserPrincipal(id, "u" + id, role, unitCode == null ? null : 1L, unitCode, level, "Test", false);
     }
 
     // ------------------------------------------------------------------ phạm vi

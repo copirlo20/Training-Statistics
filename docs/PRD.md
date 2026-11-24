@@ -22,7 +22,7 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
 
 ## Phạm vi chức năng
 
-1. **Đăng nhập, đăng xuất, đổi mật khẩu.** Mật khẩu mã hóa BCrypt, chỉ yêu cầu độ dài tối thiểu. Không ép đổi mật khẩu lần đầu, không khóa tài khoản và không trì hoãn khi nhập sai. Chạy bằng HTTP, không có HTTPS. Chủ dự án đã chấp nhận các rủi ro này (xem ARCHITECTURE.md, R4).
+1. **Đăng nhập, đăng xuất, đổi mật khẩu.** Mật khẩu mã hóa BCrypt, chỉ yêu cầu độ dài tối thiểu. Tài khoản có mật khẩu do người khác đặt (mới cấp hoặc vừa được đặt lại) phải đặt mật khẩu mới ở lần đăng nhập đầu rồi mới dùng được các chức năng khác. Không khóa tài khoản và không trì hoãn khi nhập sai. Chạy bằng HTTP, không có HTTPS. Chủ dự án đã chấp nhận các rủi ro này (xem ARCHITECTURE.md, R4).
 2. **Cây đơn vị.** Seed sẵn trong `V1__init.sql` theo danh sách đơn vị ban đầu của chủ dự án. Cấp 1 có mã `[xxxx]`, Cấp 2 có mã `[mã cha].[xxxx]`. Chỉ Super Admin thêm, sửa, khóa đơn vị.
 3. **Quản lý user.**
    - Thông tin gồm họ đệm, tên, **mã định danh (duy nhất, hệ thống tự cấp dạng `ND000001` nếu để trống)**, **đối tượng** (SQ, QNCN, HSQ-CS; bắt buộc khi thêm người mới), cấp bậc, chức vụ, đơn vị, tài khoản, quyền, trạng thái và chuyên ngành (chọn nhiều bằng ô đánh dấu).
@@ -30,7 +30,7 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
    - Cấp bậc hiển thị bằng ký hiệu trong form và danh sách, bằng tên đầy đủ khi in thông tin cá nhân.
    - Trạng thái gồm activate, deactivate, delete (xóa mềm).
    - Có thể chuyển đơn vị. Quyền của admin thay đổi theo nhánh mới.
-   - Tài khoản đăng nhập cấp ở trang chi tiết người dùng (không ở form sửa). Tài khoản mới có mật khẩu mặc định `123456789`, không ép đổi.
+   - Tài khoản đăng nhập cấp ở trang chi tiết người dùng (không ở form sửa). Tài khoản mới có mật khẩu mặc định `123456789`, người dùng phải đổi ở lần đăng nhập đầu.
    - Trường "Loại" (cá nhân hoặc đơn vị) nằm trong bảng user. User loại **đơn vị** liên kết tới một đơn vị có sẵn trong cây, không có họ tên, cấp bậc, mã định danh hay tài khoản. Hệ thống tự tạo khi lần đầu đưa đơn vị đó vào nội dung kiểm tra.
    - Danh sách người dùng lọc nhiều giá trị cùng lúc ở mọi tiêu chí (đơn vị, đối tượng, cấp bậc, chức vụ, chuyên ngành, trạng thái, quyền).
 4. **Phân quyền theo nhánh.** Kiểm tra ở backend cho mọi API.
@@ -79,7 +79,7 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
 - Thống kê theo cấp bậc, chức vụ, chuyên ngành và so sánh giữa các kỳ.
 - Quản lý danh mục qua giao diện đầy đủ (hiện chỉ Super Admin thêm, sửa, khóa mục).
 - Khôi phục bản sao lưu bằng giao diện (khôi phục thủ công bằng cách thay file DB khi dừng dịch vụ, xem [OPERATIONS-GUIDE.md](OPERATIONS-GUIDE.md) mục 9).
-- Khóa tài khoản hoặc trì hoãn khi nhập sai, chính sách mật khẩu nâng cao, bắt đổi mật khẩu lần đầu. Chủ dự án đã chọn không làm.
+- Khóa tài khoản hoặc trì hoãn khi nhập sai, chính sách mật khẩu nâng cao. Chủ dự án đã chọn không làm.
 - Chức năng xóa nhật ký thao tác (quyết định 39).
 - Bộ cài Linux/Docker.
 - Ứng dụng di động riêng (native) hoặc PWA dùng ngoại tuyến. PWA cần HTTPS nên không khả thi khi hệ thống chạy HTTP. Chỉ cần web responsive.
@@ -124,7 +124,7 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
 | 14 | Quy mô | Dưới 2.000 user, dưới 50 người cùng lúc |
 | 15 | File nhập | Apache POI, `.xlsx` |
 | 16 | Audit và sao lưu | Log thao tác quan trọng. Sao lưu: xem 25 |
-| 17 | Mật khẩu | Chỉ mật khẩu tối thiểu, không ép đổi, không khóa. Tài khoản mới cấp (form, trang chi tiết, Excel) có mật khẩu mặc định `123456789`, vẫn không ép đổi |
+| 17 | Mật khẩu | Chỉ mật khẩu tối thiểu, không khóa. Tài khoản mới cấp (form, trang chi tiết, Excel) có mật khẩu mặc định `123456789`. Mật khẩu do người khác đặt (cấp tài khoản, nhập Excel, đặt lại mật khẩu) phải đổi ở lần đăng nhập đầu; trước khi đổi chỉ được đổi mật khẩu hoặc đăng xuất |
 | 18 | Mã định danh | Mỗi user cá nhân có mã định danh duy nhất, dùng để khớp khi nhập Excel. Khi tạo, để trống thì hệ thống tự cấp `ND` + số thứ tự 6 chữ số (`ND000001`); vẫn cho nhập hoặc sửa thành số hiệu chính thức, không được trùng. Người đã có mã giữ nguyên |
 | 19 | Cấp quyền admin | Admin được cấp quyền admin cho user trong nhánh mình, không vượt phạm vi |
 | 20 | Giám khảo thêm người | Giám khảo được thêm trực tiếp người vào nội dung kiểm tra mình |
@@ -153,7 +153,7 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
 
 ## Điểm còn cần xác nhận
 
-- **Mật khẩu.** Với mức tối thiểu, admin tạo hoặc đặt lại mật khẩu cho user trong phạm vi quản lý khi cần. Tài khoản mới cấp có mật khẩu mặc định `123456789`.
+- **Mật khẩu.** Với mức tối thiểu, admin tạo hoặc đặt lại mật khẩu cho user trong phạm vi quản lý khi cần. Tài khoản mới cấp có mật khẩu mặc định `123456789` và phải đổi ở lần đăng nhập đầu.
 - **Danh mục ban đầu.** Danh sách "lý do không kiểm tra" đang seed bốn giá trị (Ốm, Công tác, Nghỉ phép, Khác); đơn vị cần xác nhận hoặc để Super Admin tự điều chỉnh khi vận hành.
 - **Mã đơn vị.** Yêu cầu ban đầu chỉ cho định dạng `[xxxx]`, không cho mã thật. Mã trong seed là mã tạm đánh số theo thứ tự; vì mã đơn vị không đổi được, cần đơn vị xác nhận hệ mã chính thức trước khi triển khai thật (ARCHITECTURE 2.8, S8).
 - **Bảng màu và logo.** Màu cụ thể (ARCHITECTURE 4.1) và logo của đơn vị cần được duyệt. Chưa có logo thì dùng khiên và mỏ neo tự vẽ.
@@ -162,6 +162,6 @@ Tài liệu yêu cầu sản phẩm. Các điểm chưa rõ trong yêu cầu ban
 ## Rủi ro đã được chấp nhận
 
 - Không có HTTPS, không trì hoãn hay khóa khi nhập sai mật khẩu. Người trong mạng nội bộ có thể dò hoặc nghe lén mật khẩu. Biện pháp còn lại là ghi log mọi lần nhập sai và chọn mật khẩu Super Admin lúc cài đặt.
-- Mọi tài khoản mới cấp có chung mật khẩu mặc định `123456789` và không bị ép đổi. Ai biết tên tài khoản là đăng nhập được cho tới khi người đó tự đổi mật khẩu.
+- Mọi tài khoản mới cấp có chung mật khẩu mặc định `123456789`. Hệ thống bắt đổi ở lần đăng nhập đầu, nhưng ai biết tên tài khoản của một người chưa đăng nhập lần nào thì đăng nhập (và đặt mật khẩu) trước được người đó.
 - Giám khảo thấy được danh sách người của toàn Lữ đoàn khi tìm ứng viên (chỉ bốn trường: tên, cấp bậc, đơn vị, mã).
 - Vì chạy HTTP nên không làm được PWA cài lên điện thoại, và một số tính năng trình duyệt chỉ có ở kết nối an toàn (HTTPS) sẽ không dùng được.
