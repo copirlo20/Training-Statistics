@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cấu hình WinSW. %BASE% là thư mục chứa TrainingStatsService.exe (service\ trong thư mục cài đặt). -->
+<service>
+  <id>TrainingStats</id>
+  <name>Training Statistics</name>
+  <description>Máy chủ ứng dụng quản lý và thống kê huấn luyện</description>
+
+  <executable>%BASE%\..\runtime\bin\java.exe</executable>
+  <arguments>--enable-native-access=ALL-UNNAMED -Xms128m -Xmx512m -Dfile.encoding=UTF-8 -Duser.timezone=Asia/Ho_Chi_Minh -jar "%BASE%\..\app\trainingstats.jar" --spring.config.additional-location=optional:file:%ProgramData%/TrainingStats/config/</arguments>
+
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <onfailure action="none"/>
+  <resetfailure>1 hour</resetfailure>
+  <stoptimeout>20 sec</stoptimeout>
+
+  <logpath>%ProgramData%\TrainingStats\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+</service>

@@ -1,0 +1,34 @@
+# Build
+target/
+dist/
+*.class
+
+# Dữ liệu chạy thử và sao lưu
+data/
+# Cấu hình khi phát triển (có thể chứa first-run.properties). Neo đường dẫn để không bỏ qua package Java "config".
+/backend/config/
+*.db
+*.db-wal
+*.db-shm
+*.log
+
+# Ảnh chụp, báo cáo của tools/ui-check.ps1
+ui-check-output/
+
+# Công cụ tải về khi build bộ cài
+installer/windows/.cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Hệ điều hành
+Thumbs.db
+.DS_Store
+
+# Bí mật
+*.pfx
+*.p12
+*.key
+first-run.properties

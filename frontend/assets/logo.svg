@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Biểu tượng">
+  <!-- Biểu tượng trung tính tự vẽ: khiên và mỏ neo. Không phải quân hiệu, cấp hiệu hay hải quân kỳ. -->
+  <path d="M32 3 L58 12 V30 C58 46 46 56 32 61 C18 56 6 46 6 30 V12 Z" fill="#0F2A4A" stroke="#C9A227" stroke-width="3" stroke-linejoin="miter"/>
+  <path d="M32 9 L52 16 V30 C52 42 43 50 32 54 C21 50 12 42 12 30 V16 Z" fill="none" stroke="#E8C766" stroke-width="1.2"/>
+  <g fill="none" stroke="#E8C766" stroke-width="3" stroke-linecap="square">
+    <circle cx="32" cy="18.5" r="3.2"/>
+    <path d="M32 22 V47"/>
+    <path d="M24 27 H40"/>
+    <path d="M19 37 C20 44 25 48 32 48 C39 48 44 44 45 37"/>
+    <path d="M16 39 L19 35 L22 39"/>
+    <path d="M42 39 L45 35 L48 39"/>
+  </g>
+</svg>

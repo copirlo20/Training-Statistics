@@ -1,0 +1,237 @@
+/*
+ * Biến thiết kế (design tokens). Mọi màu, cỡ chữ, khoảng cách, bo góc CHỈ được khai báo ở đây.
+ * Màu Hải quân (xanh hải quân sẫm, trắng, vàng kim; sọc cổ áo thủy thủ ở trang đăng nhập) theo kiểu dashboard
+ * hiện đại (đổi ngày 2026-11-18): thanh bên xanh sẫm, thẻ trắng bo góc, đổ bóng nhẹ, viền mảnh, chữ thường.
+ * Không dùng quân hiệu, cấp hiệu, hải quân kỳ thật.
+ *
+ * Độ tương phản đã đo theo WCAG (2026-11-18), xem docs/OPERATIONS-GUIDE.md phụ lục B:
+ *   chữ #0E1A2B trên nền trang #F4F6FA 16.16:1, trên nền trắng 17.48:1
+ *   chữ phụ #4A5868 trên nền trang 6.72:1, trên nền tiêu đề bảng #F7F9FC 6.90:1
+ *   chữ xanh #1F4E8C trên nền xanh nhạt #E8EFF8 (mục đang chọn, nút phụ khi rê) 7.18:1
+ *   viền ô nhập #7A889A trên nền trắng 3.61:1 (WCAG yêu cầu 3:1 cho viền thành phần)
+ *   chữ menu #C3CEDC trên thanh bên #0A1A30 10.95:1; vàng sáng #E8C766 trên mục chọn #173A66 6.98:1
+ *   chữ trắng trên số thông báo đỏ #A8261C 7.10:1 (thanh trên màu trắng, không dùng vàng)
+ *   chữ sáng #F2F5FA trên xanh hải quân #0F2A4A 13.25:1
+ *   chữ trắng trên nút chính #1F4E8C 8.31:1, trên nút nguy hiểm #A8261C 7.10:1
+ *   vàng kim #C9A227 trên #0F2A4A 5.99:1 (dùng được cả cho chữ trên nền tối)
+ *   vàng sáng #E8C766 trên #0F2A4A 8.82:1
+ *   vàng kim #C9A227 trên nền trắng CHỈ 2.42:1: không dùng vàng kim trên nền sáng
+ *   viền focus #8A6A10 trên nền trắng 5.06:1
+ *
+ * Màu biểu đồ xếp loại (M6.2, 2026-11-19), đã chạy bộ kiểm bảng màu (độ sáng, độ bão hòa, phân biệt cho người mù màu
+ * giữa các cặp kề nhau, tương phản với nền trắng >= 3:1): Không đạt #B3362B, Đạt #C47F17, Khá #3D7CC9, Giỏi #1F7A45.
+ * Hai màu "chưa có điểm" là xám trung tính, dưới 3:1 nên luôn có chú giải chữ và bảng số liệu đi kèm.
+ * Biểu đồ không dùng vàng kim (nền sáng). Chữ trong biểu đồ dùng màu chữ, không dùng màu của chuỗi số liệu.
+ *
+ * Điểm ngắt (không đặt được biến trong @media, ghi lại để mọi file dùng đúng số):
+ *   mặc định: điện thoại, dưới 600px
+ *   600px: máy tính bảng đứng
+ *   1024px: máy tính bảng ngang, laptop
+ *   1440px: màn hình lớn, giới hạn bề rộng nội dung
+ */
+:root {
+    /* Bảng màu gốc */
+    --c-navy-950: #0A1A30;
+    --c-navy-900: #0F2A4A;
+    --c-navy-800: #173A66;
+    --c-navy-700: #1F4E8C;
+    --c-mist-100: #EEF2F7;
+    --c-mist-50: #F2F5FA;
+    --c-mist-25: #F7F9FC;
+    --c-page: #F4F6FA;
+    --c-navy-50: #E8EFF8;
+    --c-nav-text: #C3CEDC;
+    --c-ink: #0E1A2B;
+    --c-ink-muted: #4A5868;
+    --c-border: #C5D0DC;
+    --c-border-soft: #E1E7EF;
+    --c-border-input: #7A889A;
+    --c-border-strong: #6B7A8C;
+    --c-gold: #C9A227;
+    --c-gold-light: #E8C766;
+    --c-focus: #8A6A10;
+    --c-danger: #A8261C;
+    --c-danger-bg: #F7DEDB;
+    --c-success: #1F6B3A;
+    --c-success-bg: #DDEEE2;
+    --c-warning: #8A5300;
+    --c-warning-bg: #F6E7C1;
+    --c-warning-soft: #FDF7E8;
+    --c-white: #FFFFFF;
+    --c-black: #000000;
+    --c-overlay: rgba(10, 26, 48, 0.55);
+    --c-nav-hover: rgba(255, 255, 255, 0.06);
+    --c-nav-section: #8FA0B6;
+    --c-on-dark-hover: rgba(255, 255, 255, 0.12);
+    --c-grade-fail: #B3362B;
+    --c-grade-pass: #C47F17;
+    --c-grade-good: #3D7CC9;
+    --c-grade-excellent: #1F7A45;
+    --c-chart-absent: #8A97A8;
+    --c-chart-pending: #D3DBE5;
+    --c-chart-track: var(--c-mist-100);
+    --c-chart-grid: var(--c-border-soft);
+    --c-chart-axis: var(--c-border-strong);
+
+    /* Vai trò màu */
+    --bg-page: var(--c-page);
+    --bg-surface: var(--c-white);
+    --bg-subtle: var(--c-mist-25);
+    --bg-header: var(--c-navy-900);
+    --bg-topbar: var(--c-white);
+    --bg-nav: var(--c-navy-950);
+    --bg-nav-active: var(--c-navy-800);
+    --primary-soft: var(--c-navy-50);
+    /* Nền trang đăng nhập: xanh hải quân chuyển sắc, họa tiết sóng tự vẽ. */
+    --banner-bg: linear-gradient(90deg, var(--c-navy-950) 0%, var(--c-navy-900) 50%, var(--c-navy-700) 100%);
+    --text: var(--c-ink);
+    --text-muted: var(--c-ink-muted);
+    --text-on-dark: var(--c-mist-50);
+    --accent-on-dark: var(--c-gold-light);
+    --accent-line: var(--c-gold);
+    --primary: var(--c-navy-700);
+    --primary-hover: var(--c-navy-800);
+    --on-primary: var(--c-white);
+    --link: var(--c-navy-700);
+    --focus-ring: var(--c-focus);
+    --focus-ring-on-dark: var(--c-gold-light);
+
+    /* Sọc xanh trắng kiểu cổ áo thủy thủ (trang trí, dùng ở dải đầu trang đăng nhập). */
+    --stripes-sailor: repeating-linear-gradient(180deg,
+        var(--c-navy-900) 0 6px, var(--c-white) 6px 9px);
+
+    /* Chữ: Inter (assets/fonts, giấy phép OFL, đã gồm đủ dấu tiếng Việt) để mọi máy hiển thị giống nhau, không cần
+       Internet. Font hệ thống phía sau chỉ dùng khi file font chưa tải xong. Mã định danh, tài khoản dùng font đơn cách. */
+    --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Roboto Mono", "Courier New", monospace;
+    --fs-xs: 0.78125rem;
+    --fs-sm: 0.875rem;
+    --fs-md: 0.9375rem;
+    --fs-lg: 1.125rem;
+    --fs-xl: 1.375rem;
+    --fs-2xl: clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem);
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    /* Ô nhập không được nhỏ hơn 16px, nếu không Safari iOS tự phóng to khi chạm. */
+    --fs-input: max(16px, 1rem);
+    --lh: 1.5;
+    --tracking-heading: -0.016em;
+    --tracking-label: 0.04em;
+
+    /* Khoảng cách. --sp-hair, --sp-px: khe rất nhỏ (giữa nút biểu tượng, đệm trong nhãn). */
+    --sp-hair: 1px;
+    --sp-px: 2px;
+    --sp-1: 0.25rem;
+    --sp-2: 0.5rem;
+    --sp-3: 0.75rem;
+    --sp-4: 1rem;
+    --sp-5: 1.25rem;
+    --sp-6: 1.5rem;
+    --sp-8: 2rem;
+
+    /* Hình khối */
+    --radius-sm: 5px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 999px;
+    --bw: 1px;
+    --bw-strong: 2px;
+    --bw-accent: 3px;
+    --stripes-h: 21px;
+    --shadow-sm: 0 1px 2px rgba(15, 42, 74, 0.06);
+    --shadow: 0 1px 2px rgba(15, 42, 74, 0.06), 0 4px 14px rgba(15, 42, 74, 0.06);
+    --shadow-lg: 0 24px 48px rgba(10, 26, 48, 0.22);
+    --shadow-up: 0 -2px 12px rgba(15, 42, 74, 0.08);
+    /* Khoảng cách viền focus với thành phần; ô nhập dùng bản sát hơn. */
+    --focus-offset: 2px;
+    --focus-offset-tight: 1px;
+
+    /* Kích thước khung */
+    --tap: 44px;
+    --header-h: 56px;
+    --tabbar-h: 60px;
+    /* Bảng phân công: cột người bên trái, mỗi nội dung kiểm tra một cột. Ô chọn hiển thị bằng biểu tượng chú giải
+       (--assign-box), vùng bấm vẫn đủ --tap. */
+    --assign-name-w: 8.75rem;
+    --assign-col-w: 4.75rem;
+    --assign-box: 1.5rem;
+    --assign-empty-w: 36rem;
+    --rail-w: 88px;
+    --sidebar-w: 260px;
+    --content-max: 1600px;
+    --form-max: 760px;
+    /* Trang in trên màn hình: rộng như tờ A4 dọc (210 mm) và A4 ngang (297 mm). */
+    --print-sheet-w: 52rem;
+    --print-sheet-w-wide: 75rem;
+    --modal-w: 560px;
+    --modal-w-wide: 760px;
+    --count-badge: 1.25rem;
+    --avatar: 2.25rem;
+    --avatar-lg: 3rem;
+    --stat-icon: 3rem;
+    --menu-w: 22rem;
+    /* Lề trong của vùng nội dung và của thẻ, đổi theo điểm ngắt ở cuối file. */
+    --main-pad: var(--sp-3);
+    --card-pad: var(--sp-4);
+    --nav-indicator: 3px;
+    --grade-input-w: 3.75rem;
+    --progress-h: 0.5rem;
+    --progress-mini-w: 4.5rem;
+    --grade-preview-w: 5.5rem;
+    --state-note-max: 16rem;
+    --chart-bar-h: 0.875rem;
+    --chart-label-w: 11rem;
+    --chart-value-w: 3.5rem;
+    --chart-gap: 2px;
+    --chart-radius: 4px;
+    --chart-tick: 12px;
+    --donut-size: 9.5rem;
+    --donut-value: 17px;
+    --donut-sub: 8px;
+    --swatch: 0.75rem;
+    --tip-w: 18rem;
+    --step-no: 2rem;
+    --check-size: 22px;
+    --spinner: 18px;
+    --toast-w: 420px;
+    --login-w: 420px;
+    --login-logo: 48px;
+    --nav-item-h: 56px;
+    --hist-date-w: 9rem;
+    --hist-result-w: 15rem;
+    --hist-date-share: 24%;
+    --hist-result-share: 30%;
+    --print-cell-pad: 4px 6px;
+
+    /* Lớp chồng */
+    --z-header: 100;
+    --z-nav: 110;
+    --z-modal: 1000;
+    --z-toast: 1100;
+
+    /* Chuyển động */
+    --dur: 150ms;
+}
+
+@media (min-width: 600px) {
+    :root {
+        --main-pad: var(--sp-5);
+        --assign-name-w: 12rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    :root {
+        --main-pad: var(--sp-6);
+        --assign-name-w: 14rem;
+        --assign-col-w: 6.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --dur: 0ms;
+    }
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" preserveAspectRatio="xMaxYMax slice">
+  <!-- Họa tiết sóng biển tự vẽ cho dải đầu trang. Chỉ là đường nét trang trí, không phải hình ảnh chính thức. -->
+  <g fill="none" stroke="#E8C766" stroke-linecap="round">
+    <path d="M0 150 C50 130 100 170 150 150 S250 130 300 150 S400 170 450 150 S550 130 600 150" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M0 172 C50 152 100 192 150 172 S250 152 300 172 S400 192 450 172 S550 152 600 172" stroke-opacity="0.22" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
+    <path d="M120 120 C170 100 220 140 270 120 S370 100 420 120 S520 140 600 118" stroke-opacity="0.12" stroke-width="2"/>
+    <path d="M200 92 C250 72 300 112 350 92 S450 72 500 92 S580 108 600 98" stroke-opacity="0.08" stroke-width="2"/>
+    <circle cx="520" cy="40" r="90" stroke-opacity="0.06" stroke-width="28"/>
+    <circle cx="520" cy="40" r="150" stroke-opacity="0.04" stroke-width="18"/>
+  </g>
+</svg>

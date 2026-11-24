@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Đăng nhập - Quản lý huấn luyện</title>
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="assets/fonts/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/inter-vietnamese.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <script type="module" src="js/login.js"></script>
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-wrap">
+        <section class="login-card" aria-labelledby="login-title">
+          <div class="login-head">
+            <img src="assets/logo.svg" alt="" width="48" height="48" />
+            <div>
+              <p>Hệ thống quản lý</p>
+              <h1 id="login-title">HUẤN LUYỆN VÀ KIỂM TRA</h1>
+            </div>
+          </div>
+          <div class="login-body" id="login-body">
+            <div class="loading">Đang tải...</div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+    <noscript>Trình duyệt cần bật JavaScript để đăng nhập.</noscript>
+  </body>
+</html>

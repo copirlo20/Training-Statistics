@@ -1,0 +1,270 @@
+/* Bản in: đen trắng, bỏ khung điều hướng và nút, bảng in dạng bảng dù màn hình đang ở dạng thẻ. */
+@media print {
+    :root {
+        --bg-page: var(--c-white);
+        --bg-surface: var(--c-white);
+        --bg-subtle: var(--c-white);
+        --text: var(--c-black);
+        --text-muted: var(--c-black);
+        --primary-soft: var(--c-white);
+        --shadow-sm: none;
+        --shadow: none;
+        --shadow-lg: none;
+    }
+
+    /* A4 dọc, số trang ở chân như file Excel ("Trang x / y"). Trang in bảng nhiều cột dùng A4 ngang (page: wide). */
+    @page {
+        size: A4;
+        margin: 12mm 12mm 14mm;
+
+        @bottom-center {
+            content: "Trang " counter(page) " / " counter(pages);
+            font-family: var(--font-sans);
+            font-size: 9pt;
+        }
+    }
+
+    @page wide {
+        size: A4 landscape;
+    }
+
+    .print-landscape {
+        page: wide;
+    }
+
+    body {
+        background: var(--c-white);
+        color: var(--c-black);
+        font-size: 11pt;
+    }
+
+    .app {
+        display: block;
+    }
+
+    .app-header,
+    .app-nav,
+    .app-footer,
+    .menu-panel,
+    .page-actions,
+    .tabbar,
+    .toast-region,
+    .skip-link,
+    .btn,
+    .toolbar,
+    .pagination,
+    .back-link,
+    .no-print {
+        display: none !important;
+    }
+
+    .app-main {
+        padding: 0;
+    }
+
+    .card,
+    .page-head {
+        border-color: var(--c-black);
+        border-radius: 0;
+        background: var(--c-white);
+    }
+
+    .page-head {
+        margin: 0 0 12pt !important;
+        padding: 0 !important;
+        color: var(--c-black);
+    }
+
+    .page-head + * {
+        margin-top: 0 !important;
+    }
+
+    .page-head h1,
+    .page-head .page-sub {
+        color: var(--c-black);
+    }
+
+    .data-table .table-scroll {
+        border: 0;
+        border-radius: 0;
+    }
+
+    .badge {
+        border: var(--bw) solid var(--c-black);
+        color: var(--c-black);
+        background: var(--c-white);
+    }
+
+    table.data,
+    table.data thead,
+    table.data tbody,
+    table.data tr,
+    table.data th,
+    table.data td {
+        display: revert;
+        position: static;
+        width: auto;
+        height: auto;
+        clip: auto;
+        overflow: visible;
+        background: var(--c-white) !important;
+        color: var(--c-black);
+    }
+
+    table.data {
+        display: table;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    table.data th,
+    table.data td {
+        border: var(--bw) solid var(--c-black);
+        padding: var(--print-cell-pad);
+    }
+
+    table.data td::before {
+        content: none;
+    }
+
+    table.data tr {
+        break-inside: avoid;
+    }
+
+    a {
+        color: var(--c-black);
+        text-decoration: none;
+    }
+
+    /* ---- Trang in (ui/print-sheet.js): đen trắng, không nền ---- */
+    .print-sheet {
+        max-width: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .ps-head {
+        padding: 0;
+        border-radius: 0;
+        background: none;
+    }
+
+    .ps-app,
+    .ps-title,
+    .ps-info,
+    .ps-note,
+    .ps-foot,
+    .ps-section {
+        color: var(--c-black);
+    }
+
+    .ps-app {
+        font-size: 8.5pt;
+    }
+
+    .ps-title {
+        padding: 2pt 0 4pt;
+        border-bottom: 1.5pt solid var(--c-black);
+        font-size: 14pt;
+    }
+
+    .ps-info {
+        font-size: 9.5pt;
+    }
+
+    .ps-note {
+        font-size: 9pt;
+    }
+
+    .ps-section {
+        border-bottom: 1pt solid var(--c-black);
+        font-size: 11pt;
+        break-after: avoid;
+    }
+
+    .ps-table-wrap {
+        overflow: visible;
+    }
+
+    .ps-table {
+        font-size: 9.5pt;
+    }
+
+    .ps-table thead {
+        display: table-header-group;
+    }
+
+    .ps-table th,
+    .ps-table td {
+        border: 0.75pt solid var(--c-black);
+        padding: 2pt 4pt;
+        color: var(--c-black);
+    }
+
+    .ps-table thead th,
+    .ps-facts th,
+    .ps-table tbody tr:nth-child(even) td {
+        background: none !important;
+        color: var(--c-black);
+    }
+
+    /* Trang tự đặt focus vào vùng nội dung sau khi chuyển trang: viền focus không được in ra. */
+    *:focus,
+    *:focus-visible {
+        outline: none !important;
+    }
+
+    .ps-table tr {
+        break-inside: avoid;
+    }
+
+    /* Trang thống kê: bỏ bộ lọc, nút chuyển (khi người dùng tự in trang bằng Ctrl+P); biểu đồ in thang xám, số liệu
+       vẫn đọc được qua chú giải chữ và bảng số liệu. */
+    .filters,
+    .stats-switches {
+        display: none !important;
+    }
+
+    .chart-frame,
+    .chart-donut,
+    .hbar-track,
+    .chart-legend {
+        filter: grayscale(1);
+    }
+
+    /* Thanh biểu đồ, ô màu chú giải là nền: trình duyệt mặc định không in nền nên phải bật riêng (in thang xám). */
+    .chart-frame *,
+    .chart-donut *,
+    .hbar-track,
+    .hbar-track *,
+    .chart-legend * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .icon {
+        color: var(--c-black) !important;
+    }
+
+    /* Bảng dài in hết cột: bỏ khung cuộn ngang, chữ nhỏ lại, cho xuống dòng. */
+    .table-scroll {
+        overflow: visible !important;
+    }
+
+    table.data {
+        table-layout: auto;
+        font-size: 8.5pt;
+    }
+
+    table.data th,
+    table.data td {
+        min-width: 0 !important;
+        white-space: normal !important;
+    }
+
+    .card {
+        break-inside: avoid;
+    }
+}

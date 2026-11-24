@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1280 320" width="1280" height="320" role="img" aria-label="Training Statistics: quản lý và thống kê huấn luyện">
+  <title>Training Statistics: quản lý và thống kê huấn luyện</title>
+  <!-- Banner động cho README: sóng chuyển động, khiên nổi nhẹ, dòng giới thiệu luân phiên, vệt vàng quét. Chỉ dùng SMIL
+       (chạy được khi nhúng bằng thẻ img trên GitHub), không script, không tài nguyên ngoài. Màu theo bảng Hải quân của dự án. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1A30"/>
+      <stop offset="0.55" stop-color="#0F2A4A"/>
+      <stop offset="1" stop-color="#1F4E8C"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C9A227" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#E8C766"/>
+      <stop offset="1" stop-color="#C9A227" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E8C766" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#E8C766" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame"><rect width="1280" height="320" rx="18"/></clipPath>
+    <path id="wave" d="M0 0 C 80 -22 160 22 240 0 S 400 -22 480 0 S 640 22 720 0 S 880 -22 960 0 S 1120 22 1200 0 S 1360 -22 1440 0 S 1600 22 1680 0 S 1840 -22 1920 0"/>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1280" height="320" fill="url(#bg)"/>
+
+    <!-- họa tiết vòng tròn mờ phía phải -->
+    <circle cx="1130" cy="120" r="210" fill="none" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="46"/>
+    <circle cx="1130" cy="120" r="120" fill="none" stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="22"/>
+
+    <!-- sóng chuyển động (mỗi lớp một tốc độ) -->
+    <g fill="none" stroke-linecap="round">
+      <use xlink:href="#wave" href="#wave" y="236" stroke="#C9A227" stroke-opacity="0.34" stroke-width="2.4">
+        <animateTransform attributeName="transform" type="translate" from="0 0" to="-480 0" dur="14s" repeatCount="indefinite"/>
+      </use>
+      <use xlink:href="#wave" href="#wave" y="262" stroke="#FFFFFF" stroke-opacity="0.20" stroke-width="2">
+        <animateTransform attributeName="transform" type="translate" from="-480 0" to="0 0" dur="19s" repeatCount="indefinite"/>
+      </use>
+      <use xlink:href="#wave" href="#wave" y="288" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2">
+        <animateTransform attributeName="transform" type="translate" from="0 0" to="-480 0" dur="25s" repeatCount="indefinite"/>
+      </use>
+    </g>
+
+    <!-- khiên và mỏ neo (nổi nhẹ, quầng sáng thở) -->
+    <g>
+      <circle cx="164" cy="150" r="104" fill="url(#glow)">
+        <animate attributeName="r" values="96;112;96" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0; 0 -7; 0 0" dur="5s" repeatCount="indefinite"/>
+        <g transform="translate(94 80) scale(2.2)">
+          <path d="M32 3 L58 12 V30 C58 46 46 56 32 61 C18 56 6 46 6 30 V12 Z" fill="#0F2A4A" stroke="#C9A227" stroke-width="3" stroke-linejoin="miter"/>
+          <path d="M32 9 L52 16 V30 C52 42 43 50 32 54 C21 50 12 42 12 30 V16 Z" fill="none" stroke="#E8C766" stroke-width="1.2"/>
+          <g fill="none" stroke="#E8C766" stroke-width="3" stroke-linecap="square">
+            <circle cx="32" cy="18.5" r="3.2"/>
+            <path d="M32 22 V47"/>
+            <path d="M24 27 H40"/>
+            <path d="M19 37 C20 44 25 48 32 48 C39 48 44 44 45 37"/>
+            <path d="M16 39 L19 35 L22 39"/>
+            <path d="M42 39 L45 35 L48 39"/>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- tiêu đề -->
+    <g font-family="Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+      <text x="300" y="112" font-size="22" font-weight="700" letter-spacing="5" fill="#E8C766">HỆ THỐNG QUẢN LÝ HUẤN LUYỆN</text>
+      <text x="298" y="176" font-size="68" font-weight="800" fill="#FFFFFF" letter-spacing="-1">
+        Training Statistics
+        <animate attributeName="opacity" values="0;1" dur="1.2s" fill="freeze"/>
+      </text>
+
+      <!-- dòng giới thiệu luân phiên -->
+      <g font-size="26" font-weight="500" fill="#C3CEDC">
+        <text x="300" y="222" opacity="1">
+          Phân quyền chặt theo cây đơn vị
+          <animate attributeName="opacity" values="1;1;0;0;0;0;1" keyTimes="0;0.22;0.25;0.5;0.75;0.97;1" dur="16s" repeatCount="indefinite"/>
+        </text>
+        <text x="300" y="222" opacity="0">
+          Chấm điểm một lần, xếp loại tự động
+          <animate attributeName="opacity" values="0;0;1;1;0;0;0" keyTimes="0;0.22;0.27;0.47;0.5;0.75;1" dur="16s" repeatCount="indefinite"/>
+        </text>
+        <text x="300" y="222" opacity="0">
+          Thống kê, biểu đồ, in báo cáo, nhập xuất Excel
+          <animate attributeName="opacity" values="0;0;0;1;1;0;0" keyTimes="0;0.47;0.52;0.57;0.72;0.75;1" dur="16s" repeatCount="indefinite"/>
+        </text>
+        <text x="300" y="222" opacity="0">
+          Chạy trong mạng LAN, không cần Internet
+          <animate attributeName="opacity" values="0;0;0;0;1;1;0" keyTimes="0;0.72;0.75;0.77;0.82;0.95;1" dur="16s" repeatCount="indefinite"/>
+        </text>
+      </g>
+    </g>
+
+    <!-- vệt vàng quét dưới đáy -->
+    <rect x="0" y="312" width="1280" height="8" fill="#C9A227" fill-opacity="0.18"/>
+    <rect x="-420" y="312" width="420" height="8" fill="url(#gold)">
+      <animate attributeName="x" from="-420" to="1280" dur="6s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg>
